@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: app-of-apps
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: 'git@github.com:D1g1talS0ul/kubernetes-apps.git'  # Replace with your Git repository URL
+    targetRevision: HEAD        # Or a specific branch/tag like 'main' or 'v1.0.0'
+    path: ./                 # Points to the directory containing the app directories
+  destination:
+    server: 'https://kubernetes.default.svc' # The Kubernetes API server address
+    namespace: argocd            # The namespace where your applications will be deployed (can be different per app, which would be defined in each app's Argo CD Application yaml file, if so, change accordingly)
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true  # Create the destination namespace if it doesn't exist

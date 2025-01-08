@@ -2,7 +2,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
   name: grafana
-  namespace: argocd
+  namespace: monitoring
 spec:
   description: Grafana Project
   sourceRepos:

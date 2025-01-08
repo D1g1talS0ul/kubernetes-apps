@@ -1,0 +1,30 @@
+apiVersion: argoproj.io/v1alpha1
+kind: ApplicationSet
+metadata:
+  name: argocd-projects
+  namespace: argocd
+spec:
+  generators:
+    - git:
+        repoURL: git@github.com:D1g1talS0ul/kubernetes-apps.git
+        revision: main
+        directories:
+          - path: projects/*
+  template:
+    metadata:
+      name: '{{path.basename}}-project'
+    spec:
+      project: default # Assuming 'default' project will manage other projects. Adjust if necessary.
+      source:
+        repoURL: git@github.com:D1g1talS0ul/kubernetes-apps.git
+        targetRevision: main
+        path: '{{path}}'
+      destination:
+        server: https://kubernetes.default.svc
+        namespace: argocd
+      syncPolicy:
+        automated:
+          prune: true
+          selfHeal: true
+        syncOptions:
+          - CreateNamespace=true

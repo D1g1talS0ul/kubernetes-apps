@@ -13,3 +13,9 @@ spec:
   clusterResourceWhitelist:
     - group: '*'
       kind: '*'
+  syncPolicy:
+    automated:
+      prune: true  # Automatically delete resources that are removed from Git
+      selfHeal: true # Automatically correct any deviations from the desired state in Git
+    syncOptions:
+      - CreateNamespace=true # Create the 'argocd' namespace if it doesn't exist

@@ -6,7 +6,7 @@ metadata:
 spec:
   generators:
   - git:
-      repoURL: https://github.com/<your-username>/kubernetes-apps.git # Replace with your actual repo URL
+      repoURL: ssh://git@github.com:D1g1talS0ul/kubernetes-apps.git # Replace with your actual repo URL
       revision: HEAD
       directories:
       - path: apps/grafana
@@ -16,7 +16,7 @@ spec:
     spec:
       project: default
       source:
-        repoURL: https://github.com/<your-username>/kubernetes-apps.git # Replace with your actual repo URL
+        repoURL: ssh://git@github.com:D1g1talS0ul/kubernetes-apps.git # Replace with your actual repo URL
         targetRevision: HEAD
         path: '{{path}}'
         helm:

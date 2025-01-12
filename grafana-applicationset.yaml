@@ -1,29 +1,24 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: grafana-applicationset
+  name: grafana
   namespace: argocd
 spec:
   generators:
   - git:
-      repoURL: ssh://git@github.com:D1g1talS0ul/kubernetes-apps.git # Replace with your actual repo URL
+      repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
       revision: HEAD
       directories:
-      - path: apps/grafana
+      - path: apps/*
   template:
     metadata:
-      name: '{{path.basename}}-grafana' # Generates names like "grafana-grafana"
+      name: '{{path.basename}}'
     spec:
       project: default
       source:
-        repoURL: ssh://git@github.com:D1g1talS0ul/kubernetes-apps.git # Replace with your actual repo URL
+        repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
         targetRevision: HEAD
         path: '{{path}}'
-        helm:
-          # Optional: You can specify value files here if needed
-          # valueFiles:
-          #   - values.yaml
-          passCredentials: true # If your git repo is private, set this to true and configure the authentication on the ArgoCD server
       destination:
         server: https://kubernetes.default.svc
         namespace: monitoring # Or any namespace you want to deploy Grafana to

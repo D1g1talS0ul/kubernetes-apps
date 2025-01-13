@@ -39,4 +39,5 @@ spec:
         value: /
     backendRefs:
     - name: grafana
+      namespace: monitoring
       port: 80

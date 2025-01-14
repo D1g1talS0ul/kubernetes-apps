@@ -5,6 +5,7 @@ namespace: argocd
 
 # TAKEN FROM
 # https://github.com/argoproj/argoproj-deployments/tree/master
+# https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#resource-exclusioninclusion
 # resources:
 # - base/argo-cd-issuer.yaml
 # - base/argo-cd-certificate.yaml
@@ -15,6 +16,7 @@ namespace: argocd
 # components:
 # - https://github.com/argoproj-labs/argocd-extensions/manifests
 
+# https://docs.cilium.io/en/stable/configuration/argocd-issues/#argo-cd-deletes-customresourcedefinitions
 patches:
 - path: overlays/mine/cilium.yaml
 # - path: overlays/production/argo-cd-cm.yaml

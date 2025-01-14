@@ -28,3 +28,5 @@ data:
       - /data/tls.crt
       - /data/tls.key
 kind: ConfigMap
+metadata:
+  name: argocd-cm

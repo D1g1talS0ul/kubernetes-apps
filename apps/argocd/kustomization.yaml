@@ -8,8 +8,8 @@ resources:
 - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml
 
 # extensions controller component
-components:
-- https://github.com/argoproj-labs/argocd-extensions/manifests
+# components:
+# - https://github.com/argoproj-labs/argocd-extensions/manifests
 
 
 # https://docs.cilium.io/en/stable/configuration/argocd-issues/#argo-cd-deletes-customresourcedefinitions

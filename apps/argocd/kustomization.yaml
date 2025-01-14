@@ -6,15 +6,17 @@ namespace: argocd
 # TAKEN FROM
 # https://github.com/argoproj/argoproj-deployments/tree/master
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#resource-exclusioninclusion
-# resources:
+resources:
 # - base/argo-cd-issuer.yaml
 # - base/argo-cd-certificate.yaml
 # - base/argo-cd-ui-ingress.yaml
 # - base/rollouts-extension.yaml
-# - https://raw.githubusercontent.com/argoproj/argo-cd/master/manifests/ha/install.yaml
+- https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml
 
-# components:
-# - https://github.com/argoproj-labs/argocd-extensions/manifests
+components:
+# extensions controller component
+- https://github.com/argoproj-labs/argocd-extensions/manifests
+
 
 # https://docs.cilium.io/en/stable/configuration/argocd-issues/#argo-cd-deletes-customresourcedefinitions
 patches:
@@ -25,4 +27,4 @@ patches:
   # - path: overlays/production/argocd-cmd-params-cm.yaml
   # - path: overlays/production/argocd-rbac-cm.yaml
   # - path: https://raw.githubusercontent.com/argoproj/argo-cd/master/notifications_catalog/install.yaml
-  - path: overlays/mine/cilium.yaml
+- path: overlays/mine/cilium.yaml

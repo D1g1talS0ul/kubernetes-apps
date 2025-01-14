@@ -16,7 +16,7 @@ namespace: argocd
 # - https://github.com/argoproj-labs/argocd-extensions/manifests
 
 patches:
- - path: overlays/mine/cilium.yaml
+- path: overlays/mine/cilium.yaml
 # - path: overlays/production/argo-cd-cm.yaml
 # - path: overlays/production/argocd-server-service.yaml
 # - path: overlays/production/argocd-notifications-controller-deploy.yaml

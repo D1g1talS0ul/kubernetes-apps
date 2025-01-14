@@ -11,7 +11,7 @@ resources:
 # - base/argo-cd-certificate.yaml
 # - base/argo-cd-ui-ingress.yaml
 # - base/rollouts-extension.yaml
-- https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml
+# - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml
 
 components:
 # extensions controller component

@@ -21,7 +21,7 @@ spec:
         path: '{{path}}'
       destination:
         server: https://kubernetes.default.svc
-        namespace: monitoring # Or any namespace you want to deploy Grafana to
+        namespace: '{{path.basename}}'
       syncPolicy:
         automated:
           prune: true

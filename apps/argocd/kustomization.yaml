@@ -18,11 +18,11 @@ namespace: argocd
 
 # https://docs.cilium.io/en/stable/configuration/argocd-issues/#argo-cd-deletes-customresourcedefinitions
 patches:
-# - path: overlays/production/argo-cd-cm.yaml
-# - path: overlays/production/argocd-server-service.yaml
-# - path: overlays/production/argocd-notifications-controller-deploy.yaml
-# - path: overlays/production/argocd-notifications-cm.yaml
-- path: overlays/production/argocd-cmd-params-cm.yaml
-# - path: overlays/production/argocd-rbac-cm.yaml
-# - path: https://raw.githubusercontent.com/argoproj/argo-cd/master/notifications_catalog/install.yaml
-- path: overlays/mine/cilium.yaml
+  # - path: overlays/production/argo-cd-cm.yaml
+  # - path: overlays/production/argocd-server-service.yaml
+  # - path: overlays/production/argocd-notifications-controller-deploy.yaml
+  # - path: overlays/production/argocd-notifications-cm.yaml
+  - path: overlays/production/argocd-cmd-params-cm.yaml
+  # - path: overlays/production/argocd-rbac-cm.yaml
+  # - path: https://raw.githubusercontent.com/argoproj/argo-cd/master/notifications_catalog/install.yaml
+  - path: overlays/mine/cilium.yaml

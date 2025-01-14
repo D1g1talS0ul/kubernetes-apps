@@ -14,11 +14,12 @@ spec:
     hostname: "grafana.cikli.com"
     allowedRoutes:
       namespaces:
-        from: All
+        from: Same
     tls:
       certificateRefs:
       - kind: Secret
         name: grafana-1-tls
+        namespace: monitoring
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute

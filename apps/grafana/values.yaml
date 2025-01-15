@@ -1,6 +1,3 @@
-grafana_admin_user: ${GRAFANA_ADMIN_USER:-admin}
-grafana_admin_password: ${GRAFANA_ADMIN_PASSWORD:-password}
-
 persistence:
   type: pvc
   enabled: true

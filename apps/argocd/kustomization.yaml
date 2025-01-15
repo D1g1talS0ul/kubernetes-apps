@@ -5,7 +5,7 @@ kind: Kustomization
 # https://github.com/argoproj/argoproj-deployments/tree/master
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#resource-exclusioninclusion
 resources:
-- https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/ha/install.yaml
+- https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
 
 # extensions controller component
 # components:

@@ -1,10 +1,16 @@
-admin:
-  user: admin
-  password: password
+adminUser: admin
+adminPassword: password
 
 persistence:
+  type: pvc
   enabled: true
+  # storageClassName: default
+  accessModes:
+    - ReadWriteOnce
   size: 10Gi
+  # annotations: {}
+  finalizers:
+    - kubernetes.io/pvc-protection
 
 service:
   type: ClusterIP

@@ -112,7 +112,7 @@ grafana-oncall:
 
 persistence:
   type: pvc
-  storageClassName: openebs-hostpath
+  storageClassName: longhorn (default)
   enabled: true
   accessModes:
     - ReadWriteOnce

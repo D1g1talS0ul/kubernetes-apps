@@ -112,7 +112,7 @@ grafana-oncall:
 
 persistence:
   type: pvc
-  storageClassName: longhorn (default)
+  storageClassName: longhorn-static
   enabled: true
   accessModes:
     - ReadWriteOnce

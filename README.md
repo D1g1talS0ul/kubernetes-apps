@@ -15,3 +15,7 @@ kubectl create secret generic argocd-ssh-key \
 # GRAFANA
 How I pulled in the Grafana Helm chart. Command was ran from the kubernetes-apps dir
 `helm fetch grafana/grafana --untar --untardir ./grafana/helm-charts/`
+
+# HELM
+Download
+`helm fetch grafana/grafana --untar --untardir ./helm-charts/`

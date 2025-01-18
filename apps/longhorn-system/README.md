@@ -1,4 +1,6 @@
 # INSTALL
+https://longhorn.io/docs/1.7.2/deploy/install/install-with-argocd/
+
 How I had longhorn installed before ArgoCD
 `helm install longhorn longhorn/longhorn --namespace longhorn-system --create-namespace --set defaultSettings.defaultDataPath="/storage01"`
 

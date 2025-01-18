@@ -15,8 +15,6 @@ maintainers:
 name: sealed-secrets
 type: application
 version: 2.17.1
-sources:
-  - https://github.com/bitnami-labs/sealed-secrets
 
 dependencies:
   - name: sealed-secrets

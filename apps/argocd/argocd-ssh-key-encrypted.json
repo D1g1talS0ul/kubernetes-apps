@@ -1,0 +1,22 @@
+{
+  "kind": "SealedSecret",
+  "apiVersion": "bitnami.com/v1alpha1",
+  "metadata": {
+    "name": "argocd-ssh-key",
+    "namespace": "argocd",
+    "creationTimestamp": null
+  },
+  "spec": {
+    "template": {
+      "metadata": {
+        "name": "argocd-ssh-key",
+        "namespace": "argocd",
+        "creationTimestamp": null
+      }
+    },
+    "encryptedData": {
+      "known_hosts": "AgCftCqq+hV0nWcVPaR2J0KMItaM/Nm105UssT0E/3nEg9ZzvYm7SSWflQydhTYrxdEMM9eRABxBDVr7MeeOqvZeE+3xpnRnNhfLg3aj63aAwLLhxSp04YB3V9wIGcKHq36NqsYd/QeTbIuKCXD+SJ9WWiYZnzaTLrT5NY4pduKWpGLzlgeOuvJtuc2dYw35POXo3vIf9Vk6WQ0AV3Zz7bfhezu94LtJL+HnWntmAGNsaQilia4WKZWu16QU6WqoKA/7i1LLTEJYAScCxID30Yu1Cm52eSGf/wP0GUiK4EJZofCTWwPKcAdGhVsty+go09hdZxXK3XHNDxK0YvZUZ/hqLlZzpwdIVXL5WxjCLJkSqlgp4If9w2Xqh9EYKa9RgDOBLhIaeBlHtc9Kkvn+MgNlLXuISOODbQqyvX6LCCVDtkV6yqw1Z7yPVPow6BsmjLk1FjTiHCVwsNQmXJLiYVvcFM9z92zQQNuAcaMbDix6mErNAyu8a60xJJIOolSsFKXpNkctLYhMTjANHeJWRw0DYy9CH3jT8o3pJiUObWZP/ctiThPsGE9zZL9yRUTqAhYtEEKFU4hfg83jPIg0H4db/QRMRFTQfGv6l4h/EkEfeW0sG/N8/z0tH+SNGZjFZJhRnrsCseE6y3N5IFaLkgYqItEVWDty4hAPrlqUp6KuCs9pH8lExDftwd3jzOf3jrU=",
+      "ssh-privatekey": "AgCVyTOEpK42F8qNu3SdyRbPKKpR06LZhBrBiz3VFFQYNy4cP7FWugkSJjg8YPAGazIcdPXs49N0YiPhL2o8T/xLVdWZTpyAejsKNnWqpLI7lXqhM+pxyK2SruKR8XBh4zxlfnevKvu3SCtrQ7iEgUDBy0YvGNI1bU9wxn9KM8rRO1bZhWHvkigMCty+BR/kVEkMddG1VGggF+p+b1CIcyJpyeIm1ZwYVqfhv+voLOZbbNw4aPybmNpze1eOgRBq+3FeBug2LOwKP4imj3N6+aWfB1BtfmNinwu7JK6qFNnwIAFv/DI+aXHJGjf7JTUU8URoCi5SwuAUFd/zyxMpzxlaBuAFgSVZU2pz4Z28sa16YecemfGcp16PCS/NvEdSGlFggey6Si5TgYfw04vrllxjWt9YXTFuaQXKmO8SgEzgTmMYHSriyVCST0bYbPkrvLRBnCBPt89DZ31jH0ceBCmQwBpFsDI8LLIWQCikGrdAtkOUSSEhWpEAnWe1ilnLWoiYHXNpH4Lp8skazdKLWCBwG2Phz5Tt2wbaiSvRJsUXWoCOuQTSRGVtE119C8EGrC03qyTlJhGrwhfvnyRvIJvYVO4XGU8uYmvvv8pssSJpwjLIrH+imdmNHygqB6QmldTQCo7ISI+TxbnJ6SXSnSL0DefTiFW2CwNi4MQTFLAvf5Z3YM9G/Dkkj3gKsWqEEv6bVtoEvi2Ba/L2rCihcMOkwVJbLs1dpWjWsZ618RzdkDGvow8HkhDUroTSNO70537s4PtX5WF4I6enmNb4LXbPMm1o8ClH1TZ6V2B6rQsRDLp2YmXqm9jPZRjPl76xhF3Ixzt9nnMxxEW1N81CYtuRV1WKg9EJuMvGO7YF22syXBPN2xOw9K8tgdX4fbiOMQecbTrtMCs5AZZ9FC+MT862iKMsIEvzaUNsXxNuTP6OHkt6CQQ6kfRxqDoxNAOEbYwFXIN5UHDNZgOXSpBYUtmDiir7FKJrxrfwkdaRRQyWQSR8CWlcvGuucA31ppk4mm4jRafW5dveHSQ6NqMmMkaDFzC+5E5oDWQoWsTgaRf1z/ppYjYg+/hYqL5UOy2wEFrCfCIaaYZcF93OiF6sWmhtyCxR7qiVbbe4ggChtsXR7HwOZaYsqjAGg3wty8xg2Ulf/hKzDJmWRnnDgyzvlaXC1ZD4RhDhElBvN+W/5Ftt9zS2wALlwQxNTbpuWgG+WfDZDe343Ah4gv88kvux+Rs="
+    }
+  }
+}

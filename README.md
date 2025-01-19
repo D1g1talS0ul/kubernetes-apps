@@ -1,4 +1,4 @@
-## SEALED SECRETS WAY
+# SEALED SECRETS WAY
 ```
 kubectl create secret generic mysecret --dry-run=client \
 --from-file=ssh-privatekey=/Users/me/.ssh/id_ed25519_argocd \
@@ -27,10 +27,6 @@ kubectl create secret generic argocd-ssh-key \
         --from-file=ssh-privatekey=/Users/me/.ssh/id_ed25519_argocd \
         --from-file=known_hosts=/dev/null
 ```
-
-# GRAFANA
-How I pulled in the Grafana Helm chart. Command was ran from the kubernetes-apps dir
-`helm fetch grafana/grafana --untar --untardir ./grafana/helm-charts/`
 
 # HELM
 Download

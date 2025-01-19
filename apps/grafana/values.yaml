@@ -112,8 +112,14 @@ grafana-oncall:
 
 persistence:
   type: pvc
-  storageClassName: longhorn-static
+  storageClassName: longhorn
   enabled: true
   accessModes:
     - ReadWriteOnce
   size: 10Gi
+
+admin:
+  ## Name of the secret. Can be templated.
+  existingSecret: "grafana-admin-secret"
+  userKey: admin-user
+  passwordKey: admin-password

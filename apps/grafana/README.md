@@ -1,13 +1,12 @@
 # SEALED SECRETS WAY
 Update values.yaml to define existingSecret: pointing to grafana-admin-secret created below
 
-I manually merged the password into sealed-secrets-admin-password.json
-
 ```
-echo -n blahblah | kubectl create secret generic grafana-admin-secret -n grafana --dry-run=client --from-file=admin-user=/dev/stdin \
--o json | kubeseal --controller-name sealed-secrets --controller-namespace sealed-secrets > sealed-secrets-admin-password.json
+kubectl create secret generic grafana-admin-secret --dry-run=client \
+      --from-literal=admin-user=blahblah --from-literal=admin-password=blahblah \
+      -n grafana -o yaml > sealed-secrets-admin-password.yaml
 
-echo -n blahblah | kubectl create secret generic grafana-admin-secret -n grafana --dry-run=client \
---from-file=admin-password=/dev/stdin -o json | kubeseal --controller-name sealed-secrets --controller-namespace sealed-secrets 
+kubeseal -f sealed-secrets-admin-password.yaml -w sealed-secrets-admin-password-encrypted.yaml \
+      --controller-name sealed-secrets --controller-namespace sealed-secrets 
 ```
 

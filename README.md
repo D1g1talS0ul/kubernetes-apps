@@ -1,3 +1,20 @@
+# DELETE APP
+Force delete an app if sync or refresh no long works
+
+mimir example
+`kubectl patch application/mimir --type json --patch='[ { "op": "remove", "path": "/metadata/finalizers" } ]' -n argocd`
+
+another option but the command above worked when I had this issue with mimir
+```
+kubectl patch app APP_NAME -p '{"metadata": {"finalizers": null}}' --type merge
+kubectl patch crd CRD_NAME -p '{"metadata": {"finalizers": null}}' --type merge
+```
+
+```
+kubectl delete app APP_NAME
+kubectl delete crd CRD_NAME
+```
+
 # SEALED SECRETS WAY
 ```
 kubectl create secret generic mysecret --dry-run=client \

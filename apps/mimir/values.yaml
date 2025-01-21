@@ -45,7 +45,7 @@ image:
 
 global:
   # -- Definitions to set up nginx resolver
-  dnsService: kube-dns
+  dnsService: coredns
   dnsNamespace: kube-system
   clusterDomain: cluster.local.
 

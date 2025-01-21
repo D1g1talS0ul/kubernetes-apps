@@ -861,7 +861,7 @@ distributor:
   resources:
     requests:
       cpu: 100m
-      memory: 512Mi
+      memory: 256Mi
 
   # Additional distributor container arguments, e.g. log level (debug, info, warn, error)
   extraArgs: {}
@@ -967,7 +967,7 @@ ingester:
   resources:
     requests:
       cpu: 100m
-      memory: 512Mi
+      memory: 256Mi
 
   # Additional ingester container arguments, e.g. log level (debug, info, warn, error)
   extraArgs: {}
@@ -2104,7 +2104,7 @@ store_gateway:
   resources:
     requests:
       cpu: 100m
-      memory: 512Mi
+      memory: 256Mi
 
   # Additional store-gateway container arguments, e.g. log level (debug, info, warn, error)
   extraArgs: {}
@@ -2323,7 +2323,7 @@ compactor:
   resources:
     requests:
       cpu: 100m
-      memory: 512Mi
+      memory: 256Mi
 
   # Additional compactor container arguments, e.g. log level (debug, info, warn, error)
   extraArgs: {}
@@ -4751,10 +4751,10 @@ continuous_test:
   # -- Kubernetes resource requests and limits for continuous test
   resources:
     limits:
-      memory: 1Gi
+      memory: 256Mi
     requests:
       cpu: "1"
-      memory: 512Mi
+      memory: 128Mi
   # -- Security context for the continuous test Deployment
   securityContext: {}
   # -- Service for monitoring continuous test

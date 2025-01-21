@@ -1,3 +1,8 @@
+# UPGRADE ARGOCD
+Was as simple as
+`kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v.2.13.3/manifests/install.yaml
+`
+
 # DELETE APP
 Force delete an app if sync or refresh no long works
 

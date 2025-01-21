@@ -1,4 +1,0 @@
-# INFO
-https://github.com/grafana/mimir/tree/main/operations/helm/charts/mimir-distributed
-
-

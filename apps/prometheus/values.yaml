@@ -3,9 +3,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-serviceMonitor:
-  selfMonitor: true
-
 rbac:
   create: true
 
@@ -54,6 +51,9 @@ configmapReload:
     ## If false, the configmap-reload container will not be deployed
     ##
     enabled: true
+
+    serviceMonitor:
+      selfMonitor: true
 
     ## configmap-reload container name
     ##

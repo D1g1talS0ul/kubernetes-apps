@@ -6,7 +6,6 @@ kind: Kustomization
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#resource-exclusioninclusion
 resources:
 - https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
-- overlays/mine/metrics.yaml
 
 # extensions controller component
 # components:

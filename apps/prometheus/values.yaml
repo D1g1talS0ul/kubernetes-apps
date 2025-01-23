@@ -246,7 +246,7 @@ prometheus-windows-exporter:
   ##
   prometheus:
     monitor:
-      enabled: true
+      enabled: false
       jobLabel: jobLabel
 
   releaseLabel: true
@@ -1093,7 +1093,7 @@ grafana:
 
   sidecar:
     dashboards:
-      enabled: true
+      enabled: false
       label: grafana_dashboard
       labelValue: "1"
       # Allow discovery in all namespaces for dashboards
@@ -1113,7 +1113,7 @@ grafana:
       provider:
         allowUiUpdates: false
     datasources:
-      enabled: true
+      enabled: false
       defaultDatasourceEnabled: true
       isDefaultDatasource: true
 
@@ -1151,7 +1151,7 @@ grafana:
         # datasourceUid: Jaeger
         # traceIdLabelName: trace_id
       alertmanager:
-        enabled: true
+        enabled: false
         name: Alertmanager
         uid: alertmanager
         handleGrafanaManagedAlerts: false
@@ -1200,7 +1200,7 @@ grafana:
     # If true, a ServiceMonitor CRD is created for a prometheus operator
     # https://github.com/coreos/prometheus-operator
     #
-    enabled: true
+    enabled: false
 
     # Path to use for scraping metrics. Might be different if server.root_url is set
     # in grafana.ini
@@ -2149,7 +2149,7 @@ kubeProxy:
 ## Component scraping kube state metrics
 ##
 kubeStateMetrics:
-  enabled: true
+  enabled: false
 
 ## Configuration for kube-state-metrics subchart
 ##
@@ -2223,7 +2223,7 @@ kube-state-metrics:
 ## Deploy node exporter as a daemonset to all nodes
 ##
 nodeExporter:
-  enabled: true
+  enabled: false
   operatingSystems:
     linux:
       enabled: true

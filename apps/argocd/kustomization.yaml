@@ -15,5 +15,5 @@ resources:
 # https://docs.cilium.io/en/stable/configuration/argocd-issues/#argo-cd-deletes-customresourcedefinitions
 patches:
 - path: overlays/production/argocd-cmd-params-cm.yaml
-- path: overlays/production/argocd-cd-cm.yaml
+- path: overlays/production/argocd-cm.yaml
 - path: overlays/mine/cilium.yaml

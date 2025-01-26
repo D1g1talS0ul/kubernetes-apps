@@ -9,7 +9,15 @@ spec:
       repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
       revision: HEAD
       directories:
-      - path: apps/*
+  - path: apps/*
+  - list:
+      elements:
+        - app: prometheus
+          patch: |
+            spec:
+              syncPolicy:
+                syncOptions:
+                  - ServerSideApply=true
   template:
     metadata:
       name: '{{path.basename}}'

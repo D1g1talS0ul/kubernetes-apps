@@ -12,7 +12,7 @@ spec:
   - path: apps/*
   - list:
       elements:
-        - app: prometheus
+        - app: apps/prometheus
           patch: |
             spec:
               syncPolicy:
@@ -27,6 +27,8 @@ spec:
         repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
         targetRevision: HEAD
         path: '{{path}}'
+        helm:
+          valueFiles: '{{path}}/values.yaml'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{path.basename}}'

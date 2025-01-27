@@ -19,8 +19,8 @@ resources:
 # - ./manifests/blackboxExporter-serviceMonitor.yaml
 # - ./manifests/grafana-config.yaml
 # - ./manifests/grafana-dashboardDatasources.yaml
-# - ./manifests/grafana-dashboardDefinitions.yaml
-# - ./manifests/grafana-dashboardSources.yaml
+- ./manifests/grafana-dashboardDefinitions.yaml
+- ./manifests/grafana-dashboardSources.yaml
 # - ./manifests/grafana-deployment.yaml
 # - ./manifests/grafana-networkPolicy.yaml
 # - ./manifests/grafana-prometheusRule.yaml

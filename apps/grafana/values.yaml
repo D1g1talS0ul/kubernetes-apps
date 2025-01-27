@@ -12,7 +12,7 @@ grafana:
         - name: Prometheus
           uid: prom
           type: prometheus
-          url: http://prometheus-server.prometheus.svc.cluster.local
+          url: http://prometheus-k8s.monitoring.svc.cluster.local
           isDefault: true
   admin:
     ## Name of the secret. Can be templated.

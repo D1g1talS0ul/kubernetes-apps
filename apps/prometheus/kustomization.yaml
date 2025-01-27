@@ -106,5 +106,5 @@ patches:
         value: [] # Clear any inherited syncOptions
 
 components:
-  - ../../components/create-namespace
-  - ../../components/server-side-apply
+  - ../components/create-namespace
+  - ../components/server-side-apply

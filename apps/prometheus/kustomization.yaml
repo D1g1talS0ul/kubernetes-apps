@@ -96,3 +96,15 @@ resources:
 - ./manifests/setup/0servicemonitorCustomResourceDefinition.yaml
 # - ./manifests/setup/0thanosrulerCustomResourceDefinition.yaml
 - ./manifests/setup/namespace.yaml
+
+patches:
+  - target:
+      kind: Application
+    patch: |-
+      - op: add
+        path: /spec/syncPolicy/syncOptions
+        value: [] # Clear any inherited syncOptions
+
+components:
+  - ../../components/create-namespace
+  - ../../components/server-side-apply

@@ -10,14 +10,6 @@ spec:
       revision: HEAD
       directories:
   - path: apps/*
-  - list:
-      elements:
-        - app: apps/prometheus
-          patch: |
-            spec:
-              syncPolicy:
-                syncOptions:
-                  - ServerSideApply=true
   template:
     metadata:
       name: '{{path.basename}}'

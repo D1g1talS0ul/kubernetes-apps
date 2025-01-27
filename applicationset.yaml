@@ -21,6 +21,9 @@ spec:
         path: '{{path}}'
         helm:
           valueFiles: '{{path}}/values.yaml'
+        kustomize:
+          components:
+          - '{{path.basename}}/components/create-namespace'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{path.basename}}'
@@ -28,5 +31,5 @@ spec:
         automated:
           prune: true
           selfHeal: true
-        syncOptions:
-        - CreateNamespace=true
+        # syncOptions:
+        # - CreateNamespace=true

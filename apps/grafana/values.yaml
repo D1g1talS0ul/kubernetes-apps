@@ -12,8 +12,12 @@ grafana:
         - name: Prometheus
           uid: prom
           type: prometheus
-          url: http://prometheus-k8s.monitoring.svc.cluster.local:8080
           isDefault: true
+          access: proxy
+          editable: false
+          orgId: 1,
+          url: http://prometheus-k8s.monitoring.svc:9090
+          version: 1
   admin:
     ## Name of the secret. Can be templated.
     existingSecret: "grafana-admin-secret"

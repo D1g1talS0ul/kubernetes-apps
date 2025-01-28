@@ -17,4 +17,3 @@ patches:
 - path: overlays/production/argocd-cmd-params-cm.yaml
 - path: overlays/production/argocd-cm.yaml
 - path: overlays/mine/cilium.yaml
-- path: overlays/mine/metrics.yaml

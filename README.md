@@ -3,6 +3,14 @@ Was as simple as
 `kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v.2.13.3/manifests/install.yaml
 `
 
+# UPGRADE CILIUM
+```
+helm get values cilium --namespace=kube-system -o yaml > ~/Downloads/cilium-old-values.yaml
+
+helm upgrade cilium cilium/cilium --version 1.16.6 \
+  --namespace=kube-system \
+  -f ~/Downloads/cilium-old-values.yaml
+```
 # FIX STUCK APP
 Force delete an app if sync or refresh no long works
 

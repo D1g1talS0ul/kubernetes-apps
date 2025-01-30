@@ -3,10 +3,11 @@ kind: Component
 
 patches:
 - target:
-    group: argoproj.io
-    version: v1alpha1
-    kind: Application
+    name: .*
+    version: v1
+    group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
   patch: |-
     - op: add
-      path: /spec/syncPolicy/syncOptions/-
+      path: '/metadata/annotations/argocd.argoproj.io~1sync-options'
       value: ServerSideApply=true

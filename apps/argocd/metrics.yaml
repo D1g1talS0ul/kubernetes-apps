@@ -10,6 +10,8 @@ spec:
       app.kubernetes.io/name: argocd-metrics
   endpoints:
   - port: metrics
+  namespaceSelector:
+    any: true
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -23,6 +25,8 @@ spec:
       app.kubernetes.io/name: argocd-server-metrics
   endpoints:
   - port: metrics
+  namespaceSelector:
+    any: true
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -36,6 +40,8 @@ spec:
       app.kubernetes.io/name: argocd-repo-server
   endpoints:
   - port: metrics
+  namespaceSelector:
+    any: true
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -49,6 +55,8 @@ spec:
       app.kubernetes.io/name: argocd-applicationset-controller
   endpoints:
   - port: metrics
+  namespaceSelector:
+    any: true
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -62,6 +70,8 @@ spec:
       app.kubernetes.io/name: argocd-dex-server
   endpoints:
     - port: metrics
+  namespaceSelector:
+    any: true
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -75,6 +85,8 @@ spec:
       app.kubernetes.io/name: argocd-redis-ha-haproxy
   endpoints:
   - port: http-exporter-port
+  namespaceSelector:
+    any: true
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
@@ -88,3 +100,5 @@ spec:
       app.kubernetes.io/name: argocd-notifications-controller-metrics
   endpoints:
     - port: metrics
+  namespaceSelector:
+    any: true

@@ -23,6 +23,23 @@ grafana:
     userKey: admin-user
     passwordKey: admin-password
 
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+
+  dashboards:
+    default:
+      node-exporter-full:
+        gnetId: 1860
+        revision: 37
+        datasource: Prometheus
+
+      argocd:
+        gnetId: 14584
+        revision: 1 
+        datasource: Prometheus
+
 loki:
   # -- Deploy Loki if enabled. See [upstream readme](https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed#values) for full values reference.
   enabled: false

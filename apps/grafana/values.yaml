@@ -34,14 +34,14 @@ grafana:
         gnetId: 1860
         revision: 37
         datasource: Prometheus
-    argoCD:
-      gnetId: 14584
-      revision: 1  
-      datasource: Prometheus
-    coreDNS:
-      gnetId: 14981
-      revision: 2
-      datasource: Prometheus
+      argoCD:
+        gnetId: 14584
+        revision: 1  
+        datasource: Prometheus
+      coreDNS:
+        gnetId: 14981
+        revision: 2
+        datasource: Prometheus
 
   dashboardProviders:
     dashboardproviders.yaml:

@@ -29,13 +29,24 @@ grafana:
       label: grafana_dashboard
 
   dashboards:
-    imported:
-      NodeExporter:
+    default:
+      node-exporter-full:
         gnetId: 1860
-        revision: 31
-        datasource:
-         - name: DS_PROMETHEUS
-           value: prometheus
+        revision: 37
+        datasource: Prometheus
+
+  dashboardProviders:
+    dashboardproviders.yaml:
+      apiVersion: 1
+      providers:
+      - name: 'default'
+        orgId: 1
+        folder: ''
+        type: file
+        disableDeletion: true
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/default
 
 loki:
   # -- Deploy Loki if enabled. See [upstream readme](https://github.com/grafana/helm-charts/tree/main/charts/loki-distributed#values) for full values reference.

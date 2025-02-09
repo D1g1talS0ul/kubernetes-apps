@@ -17,7 +17,6 @@ grafana:
           editable: false
           url: http://prometheus-k8s.monitoring.svc:9090
           version: 1
-        additionalDataSources:
         - name: Loki
           type: loki
           access: proxy

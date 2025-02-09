@@ -17,6 +17,16 @@ grafana:
           editable: false
           url: http://prometheus-k8s.monitoring.svc:9090
           version: 1
+      additionalDataSources:
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki-gateway.loki.svc.cluster.local:80
+        jsonData:
+          tlsSkipVerify: true
+          httpHeaderName1: 'X-Scope-OrgID'
+        secureJsonData:
+          httpHeaderValue1: 'empty'
   admin:
     ## Name of the secret. Can be templated.
     existingSecret: "grafana-admin-secret"

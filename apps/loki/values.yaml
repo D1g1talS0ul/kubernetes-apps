@@ -35,10 +35,10 @@ singleBinary:
   resources:
     limits:
       cpu: 2
-      memory: 200Mi
+      memory: 800Mi
     requests:
       cpu: 1
-      memory: 100Mi
+      memory: 400Mi
   extraEnv:
     # Keep a little bit lower than memory limits
     - name: GOMEMLIMIT

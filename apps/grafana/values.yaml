@@ -20,7 +20,7 @@ grafana:
         - name: Loki
           type: loki
           access: proxy
-          url: http://loki-gateway.loki.svc.cluster.local:80
+          url: http://loki-gateway.loki.svc:80
           jsonData:
             tlsSkipVerify: true
             httpHeaderName1: 'X-Scope-OrgID'

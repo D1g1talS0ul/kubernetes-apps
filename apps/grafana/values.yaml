@@ -20,12 +20,7 @@ grafana:
         - name: Loki
           type: loki
           access: proxy
-          url: http://loki-gateway.loki.svc:80
-          jsonData:
-            tlsSkipVerify: true
-            httpHeaderName1: 'X-Scope-OrgID'
-          secureJsonData:
-            httpHeaderValue1: 'empty'
+          url: http://loki-gateway.loki.svc
   admin:
     ## Name of the secret. Can be templated.
     existingSecret: "grafana-admin-secret"

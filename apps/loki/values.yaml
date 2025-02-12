@@ -24,7 +24,15 @@ schema_config:
     index:
       prefix: index_
       period: 24h
-
-storage_config:
+storage:
+  # Loki requires a bucket for chunks and the ruler. GEL requires a third bucket for the admin API.
+  # Please provide these values if you are using object storage.
+  bucketNames:
+    chunks: FIXME
+    ruler: FIXME
+    admin: FIXME
+  type: filesystem
   filesystem:
-    directory: /tmp/loki/chunks
+    chunks_directory: /var/loki/chunks
+    rules_directory: /var/loki/rules
+    admin_api_directory: /var/loki/admin

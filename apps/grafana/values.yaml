@@ -19,8 +19,7 @@ grafana:
           version: 1
         - name: Loki
           type: loki
-          access: proxy
-          url: http://loki-gateway.loki.svc
+          url: http://loki-loki-distributed-gateway.loki.svc
   admin:
     ## Name of the secret. Can be templated.
     existingSecret: "grafana-admin-secret"

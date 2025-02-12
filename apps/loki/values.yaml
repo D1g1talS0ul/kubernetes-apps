@@ -2,49 +2,72 @@ auth_enabled: false
 
 server:
   http_listen_port: 3100
-  grpc_listen_port: 9096
-  log_level: debug
-  grpc_server_max_concurrent_streams: 1000
 
 common:
-  instance_addr: 127.0.0.1
-  path_prefix: /tmp/loki
-  storage:
-    filesystem:
-      chunks_directory: /tmp/loki/chunks
-      rules_directory: /tmp/loki/rules
-  replication_factor: 1
   ring:
+    instance_addr: 127.0.0.1
     kvstore:
       store: inmemory
-
-query_range:
-  results_cache:
-    cache:
-      embedded_cache:
-        enabled: true
-        max_size_mb: 100
-
-limits_config:
-  metric_aggregation_enabled: true
+  replication_factor: 1
+  path_prefix: /tmp/loki
 
 schema_config:
   configs:
-    - from: 2020-10-24
-      store: tsdb
-      object_store: filesystem
-      schema: v13
-      index:
-        prefix: index_
-        period: 24h
+  - from: 2020-05-15
+    store: tsdb
+    object_store: filesystem
+    schema: v13
+    index:
+      prefix: index_
+      period: 24h
 
-pattern_ingester:
-  enabled: true
-  metric_aggregation:
-    loki_address: localhost:3100
+storage_config:
+  filesystem:
+    directory: /tmp/loki/chunks
+      
+deploymentMode: SingleBinary
 
-ruler:
-  alertmanager_url: http://localhost:9093
+singleBinary:
+  replicas: 1
+  resources:
+    limits:
+      cpu: 2
+      memory: 2Gi
+    requests:
+      cpu: 1
+      memory: 1Gi
+  extraEnv:
+    # Keep a little bit lower than memory limits
+    - name: GOMEMLIMIT
+      value: 1750MiB
 
-frontend:
-  encoding: protobuf
+chunksCache:
+  # default is 500MB, with limited memory keep this smaller
+  writebackSizeLimit: 10MB
+
+# Zero out replica counts of other deployment modes
+backend:
+  replicas: 0
+read:
+  replicas: 0
+write:
+  replicas: 0
+
+ingester:
+  replicas: 0
+querier:
+  replicas: 0
+queryFrontend:
+  replicas: 0
+queryScheduler:
+  replicas: 0
+distributor:
+  replicas: 0
+compactor:
+  replicas: 0
+indexGateway:
+  replicas: 0
+bloomCompactor:
+  replicas: 0
+bloomGateway:
+  replicas: 0

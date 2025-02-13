@@ -42,6 +42,11 @@ alloy:
         level = "info"
         format = "logfmt"
       }
+      loki.write "default" {
+        endpoint {
+          url = "https://loki.cikli.com/loki/api/v1/push"
+        }
+      }
 
   clustering:
     # -- Deploy Alloy in a cluster to allow for load distribution.

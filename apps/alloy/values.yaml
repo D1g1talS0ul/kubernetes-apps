@@ -31,76 +31,23 @@ alloy:
     create: true
     # -- Content to assign to the new ConfigMap.  This is passed into `tpl` allowing for templating from values.
     content: |-
-      logging {
-            level  = "info"
-            format = "logfmt"
-          }
-
-          local.file_match "kubernetes_logs" {
+          local.file_match "node_logs" {
             path_targets = [{
-              __address__ = "/var/log/pods/*/*/*.log",  // Standard K8s log path (Alloy format)
+                __path__  = "/var/log/syslog",
+                job       = "node/syslog",
+                node_name = sys.env("HOSTNAME"),
+                cluster   = MINE,
             }]
           }
-          
-          discovery.kubernetes "pods" {
-            role = "pod"
+          loki.source.file "node_logs" {
+            targets    = local.file_match.node_logs.targets
+            forward_to = [loki.write.default.receiver]
           }
-
-          local.file "kubernetes_logs" {
-              targets    = local.file_match.kubernetes_logs.targets
-              forward_to = [loki.write.default.receiver]
-          }
-          
           loki.write "default" {
             endpoint {
               url = "http://loki-loki-distributed-gateway.loki.svc:3100/loki/api/v1/push"  # Replace with your Loki service URL.
             }
-          
-            external_labels = {
-              job       = "kubernetes-logs",
-              cluster   = "MINE",
-            }
           }
-
-          prometheus.exporter.unix "alloy_metrics" { }
-          prometheus.scrape "alloy_internal_metrics" {
-            targets    = prometheus.exporter.unix.alloy_metrics.targets
-            forward_to = [prometheus.remote_write.prom_default.receiver]
-          }
-          prometheus.remote_write "prom_default" {
-              endpoint {
-                  url = "http://prometheus-k8s.monitoring.svc:9090"  # Change to your prom instance
-              }
-          }
-          
-          //Relabel logs to extract Kubernetes metadata
-          loki.relabel "kubernetes_metadata" {
-              forward_to = [loki.write.default.receiver]
-                  rule {
-                      source_labels = ["__meta_kubernetes_pod_name"]
-                      target_label  = "pod"
-                  }
-                  rule {
-                      source_labels = ["__meta_kubernetes_namespace_name"]
-                      target_label  = "namespace"
-                  }
-                  rule {
-                      source_labels = ["__meta_kubernetes_pod_container_name"]
-                      target_label  = "container"
-                  }
-                  rule {
-                    source_labels = ["__meta_kubernetes_pod_node_name"]
-                    target_label = "node"
-                  }
-                  // Add more rules here to extract other labels, e.g., from annotations.
-          }
-
-          // Modify the local.file target
-          local.file "kubernetes_logs" {
-            targets    = local.file_match.kubernetes_logs.targets
-            forward_to = [loki.relabel.kubernetes_metadata.receiver]  // Forward to the relabeling stage
-          }
-
     # -- Name of existing ConfigMap to use. Used when create is false.
     name: null
     # -- Key in ConfigMap to get config from.

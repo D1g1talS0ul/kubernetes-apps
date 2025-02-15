@@ -1,30 +1,89 @@
 apiVersion: v2
 name: k8s-monitoring
-description: Kubernetes Monitoring Helm Charts. 
-home: https://github.com/grafana/loki/tree/main/production/helm/loki
-icon: https://artifacthub.io/image/b4fed1a7-6c8f-4945-b99d-096efa3e4116
-
-# A chart can be either an 'application' or a 'library' chart.
-#
-# Application charts are a collection of templates that can be packaged into versioned archives
-# to be deployed.
-#
-# Library charts provide useful utilities or functions for the chart developer. They're included as
-# a dependency of application charts to inject those utilities and functions into the rendering
-# pipeline. Library charts do not define any templates and therefore cannot be deployed.
+description: Capture all telemetry data from your Kubernetes cluster.
 type: application
-
-# This is the chart version. This version number should be incremented each time you make changes
-# to the chart and its templates, including the app version.
-# Versions are expected to follow Semantic Versioning (https://semver.org/)
+icon: https://raw.githubusercontent.com/grafana/grafana/main/public/img/grafana_icon.svg
+sources:
+  - https://github.com/grafana/k8s-monitoring-helm/tree/main/charts/k8s-monitoring
 version: 2.0.10
-
-# This is the version number of the application being deployed. This version number should be
-# incremented each time you make changes to the application. Versions are not expected to
-# follow Semantic Versioning. They should reflect the version the application is using.
 appVersion: 2.0.10
 
 dependencies:
   - name: k8s-monitoring
     version: 2.0.10
     repository: https://grafana.github.io/helm-charts
+  - alias: annotationAutodiscovery
+    name: feature-annotation-autodiscovery
+    repository: ""
+    version: 1.0.0
+    condition: annotationAutodiscovery.enabled
+  - alias: applicationObservability
+    name: feature-application-observability
+    repository: ""
+    version: 1.0.0
+    condition: applicationObservability.enabled
+  - alias: autoInstrumentation
+    name: feature-auto-instrumentation
+    repository: ""
+    version: 1.0.0
+    condition: autoInstrumentation.enabled
+  - alias: clusterEvents
+    name: feature-cluster-events
+    repository: ""
+    version: 1.0.0
+    condition: clusterEvents.enabled
+  - alias: clusterMetrics
+    name: feature-cluster-metrics
+    repository: ""
+    version: 1.0.0
+    condition: clusterMetrics.enabled
+  - alias: integrations
+    name: feature-integrations
+    repository: ""
+    version: 1.0.0
+  - alias: nodeLogs
+    name: feature-node-logs
+    repository: ""
+    version: 1.0.0
+    condition: nodeLogs.enabled
+  - alias: podLogs
+    name: feature-pod-logs
+    repository: ""
+    version: 1.0.0
+    condition: podLogs.enabled
+  - alias: profiling
+    name: feature-profiling
+    repository: ""
+    version: 1.0.0
+    condition: profiling.enabled
+  - alias: prometheusOperatorObjects
+    name: feature-prometheus-operator-objects
+    repository: ""
+    version: 1.0.0
+    condition: prometheusOperatorObjects.enabled
+
+  - alias: alloy-metrics
+    name: alloy
+    version: 0.11.0
+    repository: https://grafana.github.io/helm-charts
+    condition: alloy-metrics.enabled
+  - alias: alloy-singleton
+    name: alloy
+    version: 0.11.0
+    repository: https://grafana.github.io/helm-charts
+    condition: alloy-singleton.enabled
+  - alias: alloy-logs
+    name: alloy
+    version: 0.11.0
+    repository: https://grafana.github.io/helm-charts
+    condition: alloy-logs.enabled
+  - alias: alloy-receiver
+    name: alloy
+    version: 0.11.0
+    repository: https://grafana.github.io/helm-charts
+    condition: alloy-receiver.enabled
+  - alias: alloy-profiles
+    name: alloy
+    version: 0.11.0
+    repository: https://grafana.github.io/helm-charts
+    condition: alloy-profiles.enabled

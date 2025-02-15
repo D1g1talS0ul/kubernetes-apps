@@ -1,5 +1,5 @@
 cluster:
-  name: mine
+  name: my-cluster
 
 destinations:
   - name: localLoki

@@ -12,23 +12,28 @@ destinations:
 
 clusterMetrics:
   enabled: true
-  destinations: localPrometheus
+  destinations:
+    - name: localPrometheus
 
 clusterEvents:
   enabled: true
-  destinations: localLoki
+  destinations:
+    - name: localLoki
 
 nodeLogs:
   enabled: true
-  destinations: localLoki
+  destinations:
+    - name: localLoki
 
 podLogs:
   enabled: true
-  destinations: localLoki
+  destinations:
+    - name: localLoki
 
 prometheusOperatorObjects:
   enabled: true
-  destinations: localPrometheus
+  destinations:
+    - name: localPrometheus
 
 selfReporting:
   enabled: false

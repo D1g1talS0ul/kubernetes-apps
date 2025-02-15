@@ -19,8 +19,8 @@ spec:
         repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
         targetRevision: HEAD
         path: '{{path}}'
-        # helm:
-        #   valueFiles: '{{path}}/values.yaml'
+        helm:
+          valueFiles: '{{path}}/values.yaml'
         kustomize:
           components:
           - '{{path.basename}}/components/create-namespace'

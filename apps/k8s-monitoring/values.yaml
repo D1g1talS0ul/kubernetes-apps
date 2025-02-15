@@ -3,7 +3,7 @@
 cluster:
   # -- The name for this cluster.
   # @section -- Cluster
-  name: "MINE"
+  name: mine
 
 #
 # Global settings

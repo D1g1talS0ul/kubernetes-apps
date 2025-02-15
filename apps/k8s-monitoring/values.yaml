@@ -1,29 +1,9 @@
+---
 cluster:
-  name: my-cluster
+  name: mine
 
-destinations:
-  - name: localLoki
-    type: loki
-    url: http://loki-loki-distributed-gateway.loki.svc:3100
-
-  - name: localPrometheus
-    type: prometheus
-    url: http://prometheus-k8s.monitoring.svc:9090
-
-clusterMetrics:
-  enabled: true
-
-clusterEvents:
-  enabled: true
-
-nodeLogs:
-  enabled: true
-
-podLogs:
-  enabled: true
-
-prometheusOperatorObjects:
-  enabled: true
-
-selfReporting:
-  enabled: false
+externalServices:
+  prometheus:
+    host: http://prometheus-k8s.monitoring.svc:9090
+  loki:
+    host: http://loki-loki-distributed-gateway.loki.svc:3100

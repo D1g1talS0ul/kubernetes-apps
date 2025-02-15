@@ -1,16 +1,27 @@
 cluster:
   name: mine
-
 destinations:
   - name: localLoki
     type: loki
     url: http://loki-loki-distributed-gateway.loki.svc:3100
-
+clusterMetrics:
+  enabled: true
 clusterEvents:
   enabled: true
-
-nodeLogs:
-  enabled: true
-
 podLogs:
+  enabled: true
+integrations:
+  alloy:
+    instances:
+      - name: alloy
+        labelSelectors:
+          app.kubernetes.io/name:
+            - alloy-metrics
+            - alloy-singleton
+            - alloy-logs
+alloy-metrics:
+  enabled: true
+alloy-singleton:
+  enabled: true
+alloy-logs:
   enabled: true

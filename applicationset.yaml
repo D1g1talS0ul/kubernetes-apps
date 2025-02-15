@@ -4,29 +4,31 @@ metadata:
   name: appset
   namespace: argocd
 spec:
+  goTemplate: true
+  goTemplateOptions: ["missingkey=error"]
   generators:
   - git:
       repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
       revision: HEAD
       directories:
-  - path: apps/*
+      - path: apps/*
   template:
     metadata:
-      name: '{{path.basename}}'
+      name: '{{.path.basename}}'
     spec:
       project: default
       source:
         repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
         targetRevision: HEAD
-        path: '{{path}}'
+        path: '{{.path.path}}'
         helm:
-          valueFiles: '{{path}}/values.yaml'
+          valueFiles: '{{.path}}/values.yaml'
         kustomize:
           components:
-          - '{{path.basename}}/components/create-namespace'
+          - '{{.path.basename}}/components/create-namespace'
       destination:
         server: https://kubernetes.default.svc
-        namespace: '{{path.basename}}'
+        namespace: '{{.path.basename}}'
       syncPolicy:
         automated:
           prune: true

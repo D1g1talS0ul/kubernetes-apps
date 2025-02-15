@@ -1,4 +1,3 @@
-# yamllint disable rule:line-length rule:comments-indentation
 cluster:
   name: mine
 

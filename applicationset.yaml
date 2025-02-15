@@ -22,7 +22,13 @@ spec:
         targetRevision: HEAD
         path: '{{.path.path}}'
         helm:
-          valueFiles: '{{.path}}/values.yaml'
+          version: v3
+          skipSchemaValidation: true
+          skipTests: false
+        #https://github.com/argoproj/argo-cd/blob/master/docs/user-guide/helm.md
+          valueFiles: 
+          - '{{.path}}/values.yaml'
+          ignoreMissingValueFiles: true
         kustomize:
           components:
           - '{{.path.basename}}/components/create-namespace'

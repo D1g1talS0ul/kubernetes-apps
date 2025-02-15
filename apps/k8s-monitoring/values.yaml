@@ -1,3 +1,4 @@
+---
 cluster:
   name: mine
 destinations:
@@ -10,15 +11,6 @@ clusterEvents:
   enabled: true
 podLogs:
   enabled: true
-integrations:
-  alloy:
-    instances:
-      - name: alloy
-        labelSelectors:
-          app.kubernetes.io/name:
-            - alloy-metrics
-            - alloy-singleton
-            - alloy-logs
 alloy-metrics:
   enabled: true
 alloy-singleton:

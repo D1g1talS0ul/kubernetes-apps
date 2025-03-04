@@ -34,7 +34,7 @@ spec:
   - matches:
     - path:
         type: PathPrefix
-        value: /
+        value: /admin
     backendRefs:
     - name: pihole-web
-      port: 443
+      port: 80

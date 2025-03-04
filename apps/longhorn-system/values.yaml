@@ -1,4 +1,4 @@
-longhorn:
+longhorn-system:
   # Default values for longhorn.
   # This is a YAML-formatted file.
   # Declare variables to be passed into your templates.
@@ -27,10 +27,6 @@ longhorn:
           taintToleration: cattle.io/os=linux:NoSchedule
           # -- Node selector for system-managed Longhorn components.
           systemManagedComponentsNodeSelector: kubernetes.io/os:linux
-
-  redisSecretInit:
-    podLabels:
-      sidecar.istio.io/inject: "false"
 
   networkPolicies:
     # -- Setting that allows you to enable network policies that control access to Longhorn pods.
@@ -179,6 +175,8 @@ longhorn:
     removeSnapshotsDuringFilesystemTrim: ignored
     # -- Setting that allows you to specify the data engine version for the default Longhorn StorageClass. (Options: "v1", "v2")
     dataEngine: v1
+    # -- Setting that allows you to specify the backup target for the default Longhorn StorageClass.
+    backupTargetName: default
 
   preUpgradeChecker:
     # -- Setting that allows Longhorn to perform pre-upgrade checks. Disable this setting when installing Longhorn using Argo CD or other GitOps solutions.
@@ -204,7 +202,7 @@ longhorn:
     # -- Setting that allows Longhorn to automatically create a default disk only on nodes with the label "node.longhorn.io/create-default-disk=true" (if no other disks exist). When this setting is disabled, Longhorn creates a default disk on each node that is added to the cluster.
     createDefaultDiskLabeledNodes: ~
     # -- Default path for storing data on a host. The default value is "/var/lib/longhorn/".
-    defaultDataPath: /storage01
+    defaultDataPath: ~
     # -- Default data locality. A Longhorn volume has data locality if a local replica of the volume exists on the same node as the pod that is using the volume.
     defaultDataLocality: ~
     # -- Setting that allows scheduling on nodes with healthy replicas of the same volume. This setting is disabled by default.
@@ -219,6 +217,8 @@ longhorn:
     storageReservedPercentageForDefaultDisk: ~
     # -- Upgrade Checker that periodically checks for new Longhorn versions. When a new version is available, a notification appears on the Longhorn UI. This setting is enabled by default
     upgradeChecker: ~
+    # -- The Upgrade Responder sends a notification whenever a new Longhorn version that you can upgrade to becomes available. The default value is https://longhorn-upgrade-responder.rancher.io/v1/checkupgrade.
+    upgradeResponderURL: ~
     # -- Default number of replicas for volumes created using the Longhorn UI. For Kubernetes configuration, modify the `numberOfReplicas` field in the StorageClass. The default value is "3".
     defaultReplicaCount: ~
     # -- Default name of Longhorn static StorageClass. "storageClassName" is assigned to PVs and PVCs that are created for an existing Longhorn volume. "storageClassName" can also be used as a label, so it is possible to use a Longhorn StorageClass to bind a workload to an existing PV without creating a Kubernetes StorageClass object. "storageClassName" needs to be an existing StorageClass. The default value is "longhorn-static".

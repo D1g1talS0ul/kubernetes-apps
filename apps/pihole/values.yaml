@@ -277,8 +277,9 @@ admin:
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 
 # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
-extraEnvVars:
-  DNSMASQ_USER: root
+extraEnvVars: {
+  DNSMASQ_USER: "root"
+}
 
 # -- extraEnvVarsSecret is a list of secrets to load in as environment variables.
 extraEnvVarsSecret: {}
@@ -439,15 +440,15 @@ webHttps: "443"
 hostname: ""
 
 # -- should the container use host network
-hostNetwork: "false"
+hostNetwork: "true"
 
 # -- should container run in privileged mode
-privileged: "false"
+privileged: "true"
 
 # linux capabilities container should run with
-capabilities: {}
-  # add:
-  # - NET_ADMIN
+capabilities:
+  add:
+    - NET_ADMIN
 
 customVolumes:
   # -- set this to true to enable custom volumes

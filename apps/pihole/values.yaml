@@ -204,13 +204,13 @@ probes:
 # -- choice for the user. This also increases chances charts run on environments with little
 # -- resources, such as Minikube. If you do want to specify resources, uncomment the following
 # -- lines, adjust them as necessary, and remove the curly braces after 'resources:'.
-resources: {}
-  # limits:
-  #  cpu: 100m
-  #  memory: 128Mi
-  # requests:
-  #  cpu: 100m
-  #  memory: 128Mi
+resources:
+  limits:
+    cpu: 200m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
 
 # -- `spec.PersitentVolumeClaim` configuration
 persistentVolumeClaim:
@@ -277,8 +277,9 @@ admin:
     # reflector.v1.k8s.emberstack.com/reflection-allowed-namespaces: "external-dns"
 
 # -- extraEnvironmentVars is a list of extra enviroment variables to set for pihole to use
-extraEnvVars: {}
-  # TZ: UTC
+extraEnvVars: {
+  DNSMASQ_USER: "root"
+}
 
 # -- extraEnvVarsSecret is a list of secrets to load in as environment variables.
 extraEnvVarsSecret: {}
@@ -368,9 +369,11 @@ dnsmasq:
   # - server=/bar.foo/192.168.178.11
 
   # -- Add custom dns entries to override the dns resolution. All lines will be added to the pihole dnsmasq configuration.
-  customDnsEntries: []
-  # - address=/foo.bar/192.168.178.10
-  # - address=/bar.foo/192.168.178.11
+  customDnsEntries:
+    - address=/nas/192.168.178.10
+ 
+  customCnameEntries:
+    - cname=foo.nas,nas
 
   # -- Dnsmasq reads the /etc/hosts file to resolve ips. You can add additional entries if you like
   additionalHostsEntries: []

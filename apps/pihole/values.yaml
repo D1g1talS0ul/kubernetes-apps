@@ -396,7 +396,7 @@ dnsmasq:
   #  - cname=cname.foo.bar,foo.bar
   #  - cname=cname.bar.foo,bar.foo
   #  - cname=cname record,dns record
-  customCnameEntries: []
+  #customCnameEntries: []
   # Here we specify custom cname entries that should point to `A` records or
   # elements in customDnsEntries array.
   # The format should be:

@@ -1,0 +1,40 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: tls-gateway-pihole-k8s
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-staging
+spec:
+  gatewayClassName: cilium
+  listeners:
+  - name: https-pihole-k8s
+    protocol: HTTPS
+    port: 443
+    hostname: "pihole-k8s.cikli.com"
+    allowedRoutes:
+      namespaces:
+        from: Same
+    tls:
+      certificateRefs:
+      - kind: Secret
+        name: pihole-k8s-1-tls
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: cilium-route-pihole-k8s
+  annotations:
+    external-dns.alpha.kubernetes.io/hostname: pihole-k8s.cikli.com
+spec:
+  parentRefs:
+  - name: tls-gateway-pihole-k8s
+  hostnames:
+  - "pihole-k8s.cikli.com"
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: pihole-k8s-pihole-k8s-distributed-distributor
+      port: 3100

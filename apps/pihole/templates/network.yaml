@@ -36,5 +36,5 @@ spec:
         type: PathPrefix
         value: /
     backendRefs:
-    - name: pihole-k8s-pihole-k8s-distributed-distributor
-      port: 3100
+    - name: pihole-web
+      port: 443

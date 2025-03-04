@@ -8,7 +8,9 @@ pihole:
     nameservers:
     - 127.0.0.1
     - 192.168.1.5
-
+  serviceDhcp:
+    enabled: false
+    
   #! use an existing secret in a prod env
   adminPassword: "admin"
 

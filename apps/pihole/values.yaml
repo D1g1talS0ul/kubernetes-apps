@@ -1,5 +1,7 @@
 pihole:
   hostname: "ns1"
+  privileged: "true"
+  hostNetwork: "false"
 
   serviceDns:
     annotations:
@@ -15,8 +17,8 @@ pihole:
     enabled: true
     policy: "None"
     nameservers:
-    - 127.0.0.1
-    - 192.168.1.5
+      - 127.0.0.1
+      - 192.168.1.5
   serviceDhcp:
     enabled: false
     
@@ -25,10 +27,11 @@ pihole:
 
   dnsmasq:
     customDnsEntries:
-      - address=/nas/192.168.178.10
-  
+      - address=/foo.bar/192.168.178.10
+      - address=/bar.foo/192.168.178.11
     customCnameEntries:
-      - cname=foo.nas,nas
+      - cname=cname.foo.bar,foo.bar
+      - cname=cname.bar.foo,bar.foo
 
   resources:
     limits:

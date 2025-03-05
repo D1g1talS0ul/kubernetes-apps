@@ -6,7 +6,7 @@ pihole:
     annotations:
       "lbipam.cilium.io/ips": "192.168.1.96"
     type: LoadBalancer
-    mixedService: true
+    mixedService: false
 
   persistentVolumeClaim:
     enabled: true

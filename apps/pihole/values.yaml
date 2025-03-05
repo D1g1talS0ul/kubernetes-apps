@@ -1,5 +1,5 @@
 pihole:
-  hostname: "NS1"
+  hostname: "ns1"
 
   serviceDns:
     loadBalancerIP: 192.168.1.96

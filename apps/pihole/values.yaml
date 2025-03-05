@@ -1,7 +1,7 @@
 pihole:
   hostname: "ns1"
   privileged: "true"
-  hostNetwork: "false"
+  hostNetwork: "true"
 
   dnsHostPort:
     enabled: true

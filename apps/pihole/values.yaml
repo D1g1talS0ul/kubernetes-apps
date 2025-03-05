@@ -3,6 +3,10 @@ pihole:
   privileged: "true"
   hostNetwork: "false"
 
+  dnsHostPort:
+    enabled: true
+    port: 53
+
   serviceDns:
     annotations:
       io.cilium/lb-ipam-ips: 192.168.1.96

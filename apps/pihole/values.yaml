@@ -15,8 +15,8 @@ pihole:
       "lbipam.cilium.io/sharing-key": "pihole"
     type: LoadBalancer
 
-    persistentVolumeClaim:
-      enabled: true
+  persistentVolumeClaim:
+    enabled: true
 
   podDnsConfig:
     enabled: true

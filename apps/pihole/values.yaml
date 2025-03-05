@@ -5,6 +5,7 @@ pihole:
     loadBalancerIP: 192.168.1.96
     annotations:
       "lbipam.cilium.io/ips": "192.168.1.96"
+      "lbipam.cilium.io/sharing-key": "dns"
     type: LoadBalancer
     mixedService: false
 

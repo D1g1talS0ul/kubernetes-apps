@@ -1,10 +1,10 @@
 pihole:
   hostname: "ns1"
-  privileged: "true"
-  hostNetwork: "true"
+  privileged: false
+  hostNetwork: false
 
   dnsHostPort:
-    enabled: true
+    enabled: false
     port: 53
 
   serviceDns:
@@ -12,7 +12,7 @@ pihole:
       io.cilium/lb-ipam-ips: 192.168.1.96
       io.cilium/lb-ipam-sharing-key: pi-hole
     type: LoadBalancer
-    mixedService: false
+    mixedService: true
 
   persistentVolumeClaim:
     enabled: true

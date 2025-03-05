@@ -1,4 +1,12 @@
-pihole:  
+pihole:
+  hostname: "NS1"
+
+  serviceDns:
+    loadBalancerIP: 192.168.1.96
+    annotations:
+      "lbipam.cilium.io/ips": "192.168.1.96"
+    type: LoadBalancer
+
   persistentVolumeClaim:
     enabled: true
 

@@ -1,10 +1,10 @@
 pihole:
   hostname: "ns1"
-  privileged: false
-  hostNetwork: false
+  privileged: true
+  hostNetwork: true
 
   dnsHostPort:
-    enabled: false
+    enabled: true
     port: 53
 
   serviceDns:

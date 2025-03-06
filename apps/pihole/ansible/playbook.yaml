@@ -1,0 +1,27 @@
+---
+# ansible-playbook pihole/ansible/playbook.yaml -u me -b
+- hosts: workers
+  become: true
+  tasks:
+    - name: Modify /etc/systemd/resolved.conf
+      lineinfile:
+        path: /etc/systemd/resolved.conf
+        regexp: '^#?DNSStubListener=yes'
+        line: 'DNSStubListener=no'
+        state: present
+
+    - name: Create symbolic link for resolv.conf
+      file:
+        src: /run/systemd/resolve/resolv.conf
+        dest: /etc/resolv.conf
+        state: link
+        force: yes
+
+    - name: Reload systemd daemon
+      systemd:
+        daemon_reload: yes
+
+    - name: Restart systemd-resolved service
+      systemd:
+        name: systemd-resolved
+        state: restarted

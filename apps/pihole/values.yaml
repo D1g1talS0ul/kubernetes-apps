@@ -9,8 +9,8 @@ pihole:
 
   serviceDns:
     annotations:
-      io.cilium/lb-ipam-ips: 192.168.1.96
-      io.cilium/lb-ipam-sharing-key: pi-hole
+      lbipam.cilium.io/ips: 192.168.1.96
+      lbipam.cilium.io/sharing-key: dns
     type: LoadBalancer
     mixedService: true
 

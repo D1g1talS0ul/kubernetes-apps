@@ -3,9 +3,7 @@ kind: Component
 
 patches:
 - target:
-    name: .*
-    version: v1
-    group: apiextensions.k8s.io
+    annotationSelector: "argocd.argoproj.io/tracking-id=k8s-monitoring"
     kind: CustomResourceDefinition
   patch: |-
     - op: add

@@ -2,22 +2,22 @@ k8s-monitoring:
   cluster:
     name: "mine"
 
+  destinations:
+    - name: prometheus
+      type: prometheus
+      url: http://prometheus-k8s.monitoring.svc:9090
+    - name: loki
+      type: loki
+      url: http://loki-loki-distributed-gateway.loki.svc
+
   clusterMetrics:
     enabled: true
-    destinations:
-      - http://prometheus-k8s.monitoring.svc:9090
 
   clusterEvents:
     enabled: true
-    destinations:
-      - http://loki-loki-distributed-gateway.loki.svc
-  
+
   nodeLogs:
     enabled: true
-    destinations:
-      - http://loki-loki-distributed-gateway.loki.svc
 
   podLogs:
     enabled: true
-    destinations:
-      - http://loki-loki-distributed-gateway.loki.svc

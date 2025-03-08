@@ -18,11 +18,12 @@ pihole:
     enabled: true
 
   podDnsConfig:
-    enabled: false
+    enabled: true
     policy: "None"
     nameservers:
-      - 127.0.0.1
+      - 192.168.1.96
       - 192.168.1.5
+
   serviceDhcp:
     enabled: false
     

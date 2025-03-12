@@ -1,6 +1,19 @@
 apiVersion: argoproj.io/v1alpha1
-kind: CustomResourceDefinition
-spec:
+kind: Application
+metadata:
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+
+  ignoreDifferences:
+  - group: argoproj.io
+    jsonPointers:
+    - /status
+    kind: Application
+
   syncPolicy:
     syncOptions:
-    - ServerSideApply=true
+      - ServerSideApply=true
+    automated:
+      allowEmpty: true
+      prune: true
+      selfHeal: true

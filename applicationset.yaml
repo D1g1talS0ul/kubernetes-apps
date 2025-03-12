@@ -32,7 +32,6 @@ spec:
         kustomize:
           components:
           - '{{.path.basename}}/components/create-namespace'
-          - '{{.path.basename}}/components/server-side-apply'
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{.path.basename}}'

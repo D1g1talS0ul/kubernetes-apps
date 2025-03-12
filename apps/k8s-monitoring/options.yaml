@@ -1,0 +1,6 @@
+apiVersion: argoproj.io/v1alpha1
+kind: CustomResourceDefinition
+spec:
+  syncPolicy:
+    syncOptions:
+    - ServerSideApply=true

@@ -10,6 +10,13 @@
         line: 'DNSStubListener=no'
         state: present
 
+    - name: Again Modify /etc/systemd/resolved.conf
+      lineinfile:
+        path: /etc/systemd/resolved.conf
+        regexp: '^#?DNS='
+        line: 'DNS=192.168.1.5'
+        state: present
+
     - name: Create symbolic link for resolv.conf
       file:
         src: /run/systemd/resolve/resolv.conf

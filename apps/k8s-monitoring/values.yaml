@@ -13,6 +13,9 @@ k8s-monitoring:
   clusterEvents:
     enabled: true
 
+  opencost:
+    enabled: false
+
   clusterMetrics:
     enabled: true
     apiServer:

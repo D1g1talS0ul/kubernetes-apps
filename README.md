@@ -3,11 +3,13 @@ Was as simple as
 `kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.0.12/manifests/install.yaml
 `
 
-# UPGRADE CILIUM
+# UPGRADE CILIUM worked 8-7-2025
+https://docs.cilium.io/en/stable/operations/upgrade/#step-2-use-helm-to-upgrade-your-cilium-deployment
+
 ```
 helm get values cilium --namespace=kube-system -o yaml > ~/Downloads/cilium-old-values.yaml
 
-helm upgrade cilium cilium/cilium --version 1.16.6 \
+helm upgrade cilium cilium/cilium --version 1.18.0 \
   --namespace=kube-system \
   -f ~/Downloads/cilium-old-values.yaml
 ```

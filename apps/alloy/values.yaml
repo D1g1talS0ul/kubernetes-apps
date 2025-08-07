@@ -186,8 +186,8 @@ alloy:
     # -- Resource requests and limits to apply to the config reloader container.
     resources:
       requests:
-        cpu: "10m"
-        memory: "50Mi"
+        cpu: "1m"
+        memory: "5Mi"
     # -- Security context to apply to the Grafana configReloader container.
     securityContext: {}
 

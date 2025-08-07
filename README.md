@@ -1,6 +1,6 @@
 # UPGRADE ARGOCD
 Was as simple as
-`kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v.2.13.3/manifests/install.yaml
+`kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/v3.0.12/manifests/install.yaml
 `
 
 # UPGRADE CILIUM

@@ -96,6 +96,7 @@ resources:
 - ./manifests/setup/0servicemonitorCustomResourceDefinition.yaml
 # - ./manifests/setup/0thanosrulerCustomResourceDefinition.yaml
 - ./manifests/setup/namespace.yaml
+- ./templates/network.yaml
 
 patches:
   - target:
@@ -108,4 +109,3 @@ patches:
 components:
   - ../components/create-namespace
   - ../components/server-side-apply
-  - ./templates/network.yaml

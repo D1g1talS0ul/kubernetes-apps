@@ -108,3 +108,4 @@ patches:
 components:
   - ../components/create-namespace
   - ../components/server-side-apply
+  - ./templates/network.yaml

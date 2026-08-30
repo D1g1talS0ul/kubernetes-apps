@@ -28,3 +28,19 @@ longhorn:
     # Only affects creation of NEW default disks — existing node disks are
     # untouched. Matches the live `default-data-path` setting.
     defaultDataPath: /storage01
+
+  # Behavior-preserving override for the 1.10.2 -> 1.12.1 upgrade.
+  # In 1.12 the chart defaults `networkPolicies.restrictInternalTraffic: true`,
+  # which renders 6 enforced NetworkPolicies in longhorn-system (manager,
+  # instance-manager, webhook, recovery-backend, backing-image-*). This
+  # cluster's CNI is Cilium, which ENFORCES NetworkPolicy, and longhorn-system
+  # currently has ZERO policies. The longhorn-manager policy is default-deny
+  # Ingress with an allowlist of only longhorn-internal pods, so adopting it
+  # blind would block Prometheus (in the `prometheus` ns) from scraping
+  # longhorn-manager metrics. Keep the pre-1.12 behavior (no internal-traffic
+  # restriction) so this stays a pure version bump. Adopting network policies
+  # should be a separate, deliberate hardening change with the allowlist
+  # extended for monitoring.
+  networkPolicies:
+    enabled: false
+    restrictInternalTraffic: false

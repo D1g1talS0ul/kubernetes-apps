@@ -1,0 +1,20 @@
+# Scrape Longhorn manager metrics so the Longhorn Grafana dashboard populates.
+# The `longhorn-backend` service exposes the manager metrics on port `manager`
+# (9500) at /metrics. Longhorn's chart doesn't ship a ServiceMonitor, so define
+# one here. The `release: prometheus` label matches the kube-prometheus-stack
+# selector; the prometheus app also broadens that selector to select-all, so
+# this is picked up either way.
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: longhorn-manager
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: longhorn-manager
+  endpoints:
+    - port: manager
+      path: /metrics
+      interval: 30s

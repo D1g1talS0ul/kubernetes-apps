@@ -26,6 +26,17 @@ kube-prometheus-stack:
   prometheus:
     enabled: true
     prometheusSpec:
+      # Discover ServiceMonitors/PodMonitors/Probes/Rules regardless of their
+      # `release` label. Left at the chart default (true), the chart injects a
+      # selector of `release: prometheus`, which silently drops the ArgoCD
+      # ServiceMonitors (labeled `release: prometheus-operator` by a prior
+      # operator install) and any monitor added by hand (e.g. Longhorn) — leaving
+      # those Grafana dashboards blank. Setting these false makes the chart render
+      # empty selectors (`{}`), i.e. select everything across all namespaces.
+      serviceMonitorSelectorNilUsesHelmValues: false
+      podMonitorSelectorNilUsesHelmValues: false
+      probeSelectorNilUsesHelmValues: false
+      ruleSelectorNilUsesHelmValues: false
       # Short retention to fit the homelab; grow storage/retention later.
       retention: 7d
       resources:

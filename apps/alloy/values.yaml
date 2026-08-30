@@ -24,7 +24,11 @@ alloy:
 
   crds:
     # -- Whether to install CRDs for monitoring.
-    create: true
+    # Disabled: the umbrella chart's local `crds` subchart owns the PodLogs
+    # CRD. The alloy chart >=1.x bundles its own crds subchart, so leaving
+    # this true renders podlogs.monitoring.grafana.com twice (ArgoCD errors
+    # on the duplicate). Local subchart is the single source of truth.
+    create: false
 
   ## Various Alloy settings. For backwards compatibility with the grafana-agent
   ## chart, this field may also be called "agent". Naming this field "agent" is

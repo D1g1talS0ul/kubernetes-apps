@@ -42,6 +42,6 @@ spec:
     backendRefs:
     - group: ""
       kind: Service
-      name: loki-loki-distributed-distributor
-      port: 3100
+      name: loki-gateway
+      port: 80
       weight: 1

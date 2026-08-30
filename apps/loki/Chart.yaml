@@ -1,6 +1,6 @@
 apiVersion: v2
 name: loki
-description: Like Prometheus, but for logs. 
+description: Like Prometheus, but for logs.
 home: https://github.com/grafana/loki/tree/main/production/helm/loki
 icon: https://artifacthub.io/image/b4fed1a7-6c8f-4945-b99d-096efa3e4116
 
@@ -17,14 +17,20 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 0.80.5
+version: 7.3.0
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
-appVersion: 2.9.13
+appVersion: 3.6.12
 
+# MIGRATION: swapped the DEPRECATED `loki-distributed` chart (0.80.5 / Loki 2.9.13,
+# a microservices topology) for Grafana's current unified `loki` chart
+# (7.3.0 / Loki 3.6.12), deployed in SingleBinary mode. The old install used
+# emptyDir (no PVCs) so logs were already ephemeral; nothing shipped logs to it
+# (alloy is metrics-only). See values.yaml for the SingleBinary + Longhorn-PVC
+# config and the schema (tsdb/v13) chosen for the fresh start.
 dependencies:
-  - name: loki-distributed
-    version: 0.80.5
+  - name: loki
+    version: 7.3.0
     repository: https://grafana.github.io/helm-charts

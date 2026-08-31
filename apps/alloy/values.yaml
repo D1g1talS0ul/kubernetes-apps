@@ -107,13 +107,30 @@ alloy:
             target_label  = "job"
           }
 
-          // Build the on-disk path. $1 expands to "<pod_uid>/<container_name>",
-          // and the leading `*` covers the "<namespace>_<pod_name>_" prefix.
+          // Build the on-disk path, which is
+          //   /var/log/pods/<namespace>_<pod>_<uid-or-hash>/<container>/*.log
+          //
+          // The last segment is wildcarded on purpose. The Grafana example keys
+          // it on __meta_kubernetes_pod_uid, which breaks for static pods:
+          // kubelet names their directory with the config hash, not the API UID.
+          // On this cluster kube-apiserver-k8s-1 reports API UID
+          // 9314f6f6-997a-4950-9371-e1dc344d0ba8 but sits in
+          // kube-system_kube-apiserver-k8s-1_2c4b35227c0c1c055a8b85c4513ac4d4,
+          // so a UID glob silently skips etcd, kube-apiserver,
+          // kube-controller-manager and kube-scheduler.
+          //
+          // Matching on <namespace>_<pod>_* is unambiguous, because a pod name
+          // cannot contain an underscore.
           rule {
-            source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+            source_labels = [
+              "__meta_kubernetes_namespace",
+              "__meta_kubernetes_pod_name",
+              "__meta_kubernetes_pod_container_name",
+            ]
             separator     = "/"
+            regex         = "(.+)/(.+)/(.+)"
             action        = "replace"
-            replacement   = "/var/log/pods/*$1/*.log"
+            replacement   = "/var/log/pods/$1_$2_*/$3/*.log"
             target_label  = "__path__"
           }
         }

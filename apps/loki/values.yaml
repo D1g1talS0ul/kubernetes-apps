@@ -35,9 +35,30 @@ loki:
           index:
             prefix: loki_index_
             period: 24h
-    # Keep resource use sane on the arm64 RPi nodes; retention left at default (off).
+    # Keep resource use sane on the arm64 RPi nodes.
     limits_config:
-      retention_period: 0s
+      # 30 days. Alloy now ships every pod log on all four nodes (see
+      # apps/alloy/values.yaml), so this store is no longer idle.
+      #
+      # `retention_period` alone does nothing. The compactor applies it, and it
+      # needs `retention_enabled: true` below. Without that flag the compactor
+      # only compacts tables and keeps every chunk forever.
+      retention_period: 720h
+
+    # The compactor already runs inside the SingleBinary `all` target, so this
+    # only configures it. Confirmed live: /compactor/ring returns 200 and the
+    # pod writes compactor-*.tsdb.gz index files.
+    compactor:
+      # Turns `retention_period` above into actual deletes.
+      retention_enabled: true
+      # Required in Loki 3.x when retention is on. Storage is filesystem here,
+      # not an object store.
+      delete_request_store: filesystem
+      working_directory: /var/loki/data/retention
+      compaction_interval: 10m
+      # Grace period between marking a chunk for deletion and deleting it. Leaves
+      # room to raise the retention period without having already lost the data.
+      retention_delete_delay: 2h
 
   # The single monolithic pod, backed by a durable Longhorn volume (was emptyDir).
   singleBinary:
@@ -65,6 +86,20 @@ loki:
   #  - chunks/results caches are memcached pods requesting GBs of RAM
   #  - the canary continuously writes probe logs (needs a push target)
   #  - the helm test pod is only for CI
+  # Loki had no ServiceMonitor and no Prometheus targets at all, so ingest rate,
+  # write errors and whether retention actually deletes were all invisible.
+  # Prometheus selects all ServiceMonitors, so enabling this is enough.
+  #
+  # The chart also gates this template on
+  # `Capabilities.APIVersions.Has "monitoring.coreos.com/v1/ServiceMonitor"`.
+  # Plain `helm template` renders nothing, because it has no cluster
+  # capabilities. Argo CD passes the cluster's API versions, so it does render.
+  # To check the template locally, add:
+  #   --api-versions monitoring.coreos.com/v1/ServiceMonitor
+  monitoring:
+    serviceMonitor:
+      enabled: true
+
   chunksCache:
     enabled: false
   resultsCache:

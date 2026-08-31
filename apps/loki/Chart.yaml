@@ -22,7 +22,8 @@ version: 7.3.0
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
 # follow Semantic Versioning. They should reflect the version the application is using.
-appVersion: 3.6.12
+# Chart 7.3.0 ships Loki 3.6.11, which is the image the StatefulSet runs.
+appVersion: 3.6.11
 
 # MIGRATION: swapped the DEPRECATED `loki-distributed` chart (0.80.5 / Loki 2.9.13,
 # a microservices topology) for Grafana's current unified `loki` chart

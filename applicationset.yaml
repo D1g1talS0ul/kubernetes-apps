@@ -6,32 +6,45 @@ metadata:
 spec:
   goTemplate: true
   goTemplateOptions: ["missingkey=error"]
+
+  # Deleting this ApplicationSet removes the Application objects, but it leaves
+  # the workloads running. Without this field, one `kubectl delete
+  # applicationset appset` takes down Longhorn and every PVC with it.
+  syncPolicy:
+    preserveResourcesOnDeletion: true
+
   generators:
   - git:
       repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
-      revision: HEAD
+      revision: main
       directories:
       - path: apps/*
+      # Shared kustomize components. This is not an app.
+      - path: apps/components
+        exclude: true
+
   template:
     metadata:
       name: '{{.path.basename}}'
     spec:
-      project: default
+      project: platform
       source:
         repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
-        targetRevision: HEAD
+        targetRevision: main
         path: '{{.path.path}}'
         helm:
           version: v3
-          skipSchemaValidation: true
-          skipTests: false
-        #https://github.com/argoproj/argo-cd/blob/master/docs/user-guide/helm.md
-          valueFiles: 
-          - '{{.path}}/values.yaml'
-          ignoreMissingValueFiles: true
-        kustomize:
-          components:
-          - '{{.path.basename}}/components/create-namespace'
+          # Do not add `valueFiles` here. `path` is the chart root, so Helm
+          # already reads that chart's own values.yaml.
+          #
+          # Do not add `skipSchemaValidation`. All charts render clean with
+          # validation on, so a bad value must fail loudly instead of reaching
+          # the cluster.
+          #
+          # Skip Helm test hooks. Argo CD does not run them, it just applies
+          # them, which leaves stray test Pods behind (for example
+          # `pihole-smoke-test`).
+          skipTests: true
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{.path.basename}}'
@@ -40,4 +53,20 @@ spec:
           prune: true
           selfHeal: true
         syncOptions:
+        - CreateNamespace=true
         - ServerSideApply=true
+        # The apps have real ordering needs. sealed-secrets must run before
+        # Grafana can unseal its admin password, the prometheus-operator CRDs
+        # must exist before the Longhorn ServiceMonitor applies, and the
+        # Longhorn StorageClass must exist before the Prometheus PVC binds.
+        # Backoff converges through those races on its own.
+        #
+        # RollingSync would order the apps explicitly, but it disables autosync
+        # on every generated Application, which would cost prune and selfHeal.
+        # Backoff is the better trade here.
+        retry:
+          limit: 5
+          backoff:
+            duration: 30s
+            factor: 2
+            maxDuration: 10m

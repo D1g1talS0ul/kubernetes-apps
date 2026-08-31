@@ -1,9 +1,21 @@
+# Prometheus scrape targets for the Argo CD components.
+#
+# Every selector below matches the `app.kubernetes.io/name` label that Argo CD
+# v3.5.2 install.yaml puts on the matching Service. Check the render after an
+# Argo CD bump:
+#   kustomize build apps/argocd | rg -B6 '^kind: Service$'
+#
+# These carried a `release: prometheus-operator` label before. It selected
+# nothing, because apps/prometheus/values.yaml now sets the operator to select
+# all ServiceMonitors. The label is gone so it cannot mislead again.
+#
+# A `argocd-redis-ha-haproxy` ServiceMonitor also lived here. The install is not
+# HA, the Service is named `argocd-redis`, and it exposes no metrics port, so the
+# ServiceMonitor matched nothing and is removed.
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: argocd-metrics
-  labels:
-    release: prometheus-operator
 spec:
   selector:
     matchLabels:
@@ -11,14 +23,13 @@ spec:
   endpoints:
   - port: metrics
   namespaceSelector:
-    any: true
+    matchNames:
+    - argocd
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: argocd-server-metrics
-  labels:
-    release: prometheus-operator
 spec:
   selector:
     matchLabels:
@@ -26,14 +37,13 @@ spec:
   endpoints:
   - port: metrics
   namespaceSelector:
-    any: true
+    matchNames:
+    - argocd
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: argocd-repo-server-metrics
-  labels:
-    release: prometheus-operator
 spec:
   selector:
     matchLabels:
@@ -41,14 +51,13 @@ spec:
   endpoints:
   - port: metrics
   namespaceSelector:
-    any: true
+    matchNames:
+    - argocd
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: argocd-applicationset-controller-metrics
-  labels:
-    release: prometheus-operator
 spec:
   selector:
     matchLabels:
@@ -56,49 +65,33 @@ spec:
   endpoints:
   - port: metrics
   namespaceSelector:
-    any: true
+    matchNames:
+    - argocd
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: argocd-dex-server
-  labels:
-    release: prometheus-operator
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-dex-server
   endpoints:
-    - port: metrics
+  - port: metrics
   namespaceSelector:
-    any: true
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: argocd-redis-haproxy-metrics
-  labels:
-    release: prometheus-operator
-spec:
-  selector:
-    matchLabels:
-      app.kubernetes.io/name: argocd-redis-ha-haproxy
-  endpoints:
-  - port: http-exporter-port
-  namespaceSelector:
-    any: true
+    matchNames:
+    - argocd
 ---
 apiVersion: monitoring.coreos.com/v1
 kind: ServiceMonitor
 metadata:
   name: argocd-notifications-controller
-  labels:
-    release: prometheus-operator
 spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: argocd-notifications-controller-metrics
   endpoints:
-    - port: metrics
+  - port: metrics
   namespaceSelector:
-    any: true
+    matchNames:
+    - argocd

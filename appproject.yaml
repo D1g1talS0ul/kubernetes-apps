@@ -1,0 +1,29 @@
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: platform
+  namespace: argocd
+spec:
+  description: Homelab platform apps. The `appset` ApplicationSet generates them.
+
+  # Only this repo may be a source. An app cannot point at an arbitrary chart.
+  sourceRepos:
+  - https://github.com/D1g1talS0ul/kubernetes-apps.git
+
+  # One cluster only. Cilium and CoreDNS live in kube-system, and Helm plus
+  # Ansible manage them by hand, so no generated app may write there.
+  destinations:
+  - namespace: '!kube-system'
+    server: https://kubernetes.default.svc
+  - namespace: '*'
+    server: https://kubernetes.default.svc
+
+  # Longhorn, the prometheus-operator and Argo CD itself all install
+  # cluster-scoped objects (CRDs, ClusterRoles, StorageClasses, webhooks), so
+  # this stays open. The real guardrails above are the repo and the cluster.
+  clusterResourceWhitelist:
+  - group: '*'
+    kind: '*'
+  namespaceResourceWhitelist:
+  - group: '*'
+    kind: '*'

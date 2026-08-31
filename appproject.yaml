@@ -10,11 +10,16 @@ spec:
   sourceRepos:
   - https://github.com/D1g1talS0ul/kubernetes-apps.git
 
-  # One cluster only. Cilium and CoreDNS live in kube-system, and Helm plus
-  # Ansible manage them by hand, so no generated app may write there.
+  # One cluster only.
+  #
+  # kube-system stays allowed. kube-prometheus-stack puts its control-plane
+  # scrape targets there: headless Services for etcd, kube-controller-manager,
+  # kube-scheduler, kube-proxy and CoreDNS. A `!kube-system` deny rule blocks
+  # those five Services and leaves the prometheus app permanently OutOfSync.
+  #
+  # Helm and Ansible still manage Cilium and CoreDNS by hand. Nothing in this
+  # repo renders them, so no app fights over them.
   destinations:
-  - namespace: '!kube-system'
-    server: https://kubernetes.default.svc
   - namespace: '*'
     server: https://kubernetes.default.svc
 

@@ -39,19 +39,17 @@ spec:
         repoURL: https://github.com/D1g1talS0ul/kubernetes-apps.git
         targetRevision: main
         path: '{{.path.path}}'
-        helm:
-          version: v3
-          # Do not add `valueFiles` here. `path` is the chart root, so Helm
-          # already reads that chart's own values.yaml.
-          #
-          # Do not add `skipSchemaValidation`. All charts render clean with
-          # validation on, so a bad value must fail loudly instead of reaching
-          # the cluster.
-          #
-          # Skip Helm test hooks. Argo CD does not run them, so the pihole and
-          # Grafana chart tests have no purpose here. No stray test Pod is in
-          # the cluster today. This keeps the render deterministic.
-          skipTests: true
+        # Do not add a `helm:` block here. This one template covers Helm apps and
+        # kustomize apps. A `helm:` block of any kind makes Argo CD resolve Helm
+        # dependency repos for every app, and `apps/argocd` has no Chart.yaml, so
+        # it fails with "error reading helm chart ... Chart.yaml: no such file".
+        #
+        # The defaults are already what this repo wants. `path` is the chart
+        # root, so Helm reads that chart's own values.yaml. Schema validation is
+        # on, so a bad value fails loudly instead of reaching the cluster.
+        #
+        # If a Helm-only option is ever needed, add a second git generator that
+        # matches only the chart directories.
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{.path.basename}}'

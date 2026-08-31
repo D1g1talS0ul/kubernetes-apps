@@ -2,3 +2,9 @@
 .ansible
 .vscode
 .argocd-backup-*/
+
+# `helm dependency build` output. Argo CD fetches the subcharts itself, so the
+# tarballs must not be committed. The vendored apps/alloy/charts/crds directory
+# is a real source file and stays tracked.
+apps/*/charts/*.tgz
+apps/*/tmpcharts/

@@ -6,14 +6,21 @@ kind: Kustomization
 # https://argo-cd.readthedocs.io/en/stable/operator-manual/declarative-setup/#resource-exclusioninclusion
 resources:
 - https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.2/manifests/install.yaml
-
-# extensions controller component
-# components:
-# - https://github.com/argoproj-labs/argocd-extensions/manifests
-
+# Prometheus scrape targets for the Argo CD components. This file used to sit
+# here unreferenced, so the ServiceMonitors never deployed and the Argo CD
+# dashboards stayed blank.
+- metrics.yaml
 
 # https://docs.cilium.io/en/stable/configuration/argocd-issues/#argo-cd-deletes-customresourcedefinitions
 patches:
 - path: overlays/production/argocd-cmd-params-cm.yaml
 - path: overlays/production/argocd-cm.yaml
 - path: overlays/mine/cilium.yaml
+# Argo CD manages its own install, and the appset turns prune on. If a chart or
+# manifest bump ever drops a CRD from the render, prune would delete the CRD and
+# the API server would garbage-collect every Application, ApplicationSet and
+# AppProject with it. Prune=false makes that failure impossible.
+- target:
+    group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
+  path: overlays/production/protect-crds.yaml

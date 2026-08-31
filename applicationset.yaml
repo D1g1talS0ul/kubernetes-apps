@@ -1,7 +1,14 @@
 apiVersion: argoproj.io/v1alpha1
 kind: ApplicationSet
 metadata:
-  name: appset
+  # The name is `grafana` for history only. This object was created for Grafana
+  # alone, then grew to cover every app. `kubectl apply` must update it in place.
+  #
+  # Do not rename it by deleting this object and creating a new one until
+  # `preserveResourcesOnDeletion` below is live in the cluster. Deleting an
+  # ApplicationSet without that flag cascades to every Application it owns, and
+  # then to Longhorn and the PVCs.
+  name: grafana
   namespace: argocd
 spec:
   goTemplate: true
@@ -41,13 +48,21 @@ spec:
           # validation on, so a bad value must fail loudly instead of reaching
           # the cluster.
           #
-          # Skip Helm test hooks. Argo CD does not run them, it just applies
-          # them, which leaves stray test Pods behind (for example
-          # `pihole-smoke-test`).
+          # Skip Helm test hooks. Argo CD does not run them, so the pihole and
+          # Grafana chart tests have no purpose here. No stray test Pod is in
+          # the cluster today. This keeps the render deterministic.
           skipTests: true
       destination:
         server: https://kubernetes.default.svc
         namespace: '{{.path.basename}}'
+      # Cilium rewrites `/spec/conversion` on the CRDs it owns, so Argo CD sees
+      # a permanent diff. This pair keeps the apps from flapping OutOfSync.
+      # https://docs.cilium.io/en/stable/configuration/argocd-issues/
+      ignoreDifferences:
+      - group: apiextensions.k8s.io
+        kind: CustomResourceDefinition
+        jsonPointers:
+        - /spec/conversion
       syncPolicy:
         automated:
           prune: true
@@ -55,6 +70,7 @@ spec:
         syncOptions:
         - CreateNamespace=true
         - ServerSideApply=true
+        - RespectIgnoreDifferences=true
         # The apps have real ordering needs. sealed-secrets must run before
         # Grafana can unseal its admin password, the prometheus-operator CRDs
         # must exist before the Longhorn ServiceMonitor applies, and the

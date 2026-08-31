@@ -38,7 +38,110 @@ alloy:
       # -- Create a new ConfigMap for the config file.
       create: true
       # -- Content to assign to the new ConfigMap.  This is passed into `tpl` allowing for templating from values.
-      content: ''
+      #
+      # Collect every pod log on this node and push it to Loki. Alloy handles
+      # logs only. kube-prometheus-stack already owns metrics, so scraping here
+      # would duplicate it.
+      #
+      # Pattern from the Grafana docs, "Collect logs with Alloy":
+      # https://grafana.com/docs/alloy/latest/collect/logs-in-kubernetes/
+      #
+      # Two deliberate changes from that upstream example:
+      #  - The nodes run CRI-O, not containerd. The upstream example gates
+      #    `stage.cri` behind a `tmp_container_runtime="containerd"` selector
+      #    built from the container ID scheme. On CRI-O that value is `cri-o`,
+      #    so the selector never matches and no log line ever gets parsed.
+      #    CRI-O and containerd write the same CRI log format, so `stage.cri`
+      #    runs unconditionally here instead.
+      #  - No basic_auth. Loki runs with `auth_enabled: false` in this cluster.
+      #
+      # `sys.env("HOSTNAME")` is the NODE name, not the pod name. The chart
+      # overrides HOSTNAME from `spec.nodeName`. The field selector keeps each
+      # DaemonSet pod watching only its own node, which matters on the arm64
+      # nodes.
+      content: |-
+        logging {
+          level  = "info"
+          format = "logfmt"
+        }
+
+        discovery.kubernetes "pods" {
+          role = "pod"
+
+          selectors {
+            role  = "pod"
+            field = "spec.nodeName=" + sys.env("HOSTNAME")
+          }
+        }
+
+        discovery.relabel "pod_logs" {
+          targets = discovery.kubernetes.pods.targets
+
+          rule {
+            source_labels = ["__meta_kubernetes_namespace"]
+            target_label  = "namespace"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_name"]
+            target_label  = "pod"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_pod_container_name"]
+            target_label  = "container"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_node_name"]
+            target_label  = "node"
+          }
+
+          rule {
+            source_labels = ["__meta_kubernetes_namespace", "__meta_kubernetes_pod_container_name"]
+            separator     = "/"
+            target_label  = "job"
+          }
+
+          // Build the on-disk path. $1 expands to "<pod_uid>/<container_name>",
+          // and the leading `*` covers the "<namespace>_<pod_name>_" prefix.
+          rule {
+            source_labels = ["__meta_kubernetes_pod_uid", "__meta_kubernetes_pod_container_name"]
+            separator     = "/"
+            action        = "replace"
+            replacement   = "/var/log/pods/*$1/*.log"
+            target_label  = "__path__"
+          }
+        }
+
+        local.file_match "pod_logs" {
+          path_targets = discovery.relabel.pod_logs.output
+        }
+
+        loki.source.file "pod_logs" {
+          targets    = local.file_match.pod_logs.targets
+          forward_to = [loki.process.pod_logs.receiver]
+        }
+
+        loki.process "pod_logs" {
+          // Parses the CRI line format and extracts log, stream, time and flags.
+          stage.cri {}
+
+          stage.labels {
+            values = {
+              stream = "",
+            }
+          }
+
+          forward_to = [loki.write.default.receiver]
+        }
+
+        loki.write "default" {
+          endpoint {
+            // Same Service the Grafana Loki datasource points at.
+            url = "http://loki-gateway.loki.svc/loki/api/v1/push"
+          }
+        }
 
       # -- Name of existing ConfigMap to use. Used when create is false.
       name: null
@@ -114,9 +217,11 @@ alloy:
 
     mounts:
       # -- Mount /var/log from the host into the container for log collection.
-      varlog: false
+      # Required. loki.source.file tails /var/log/pods/*/*/*.log.
+      varlog: true
       # -- Mount /var/lib/docker/containers from the host into the container for log
       # collection.
+      # Stays false. The nodes run CRI-O, so there is no Docker log directory.
       dockercontainers: false
 
       # -- Extra volume mounts to add into the Grafana Alloy container. Does not
@@ -124,10 +229,23 @@ alloy:
       extra: []
 
     # -- Security context to apply to the Grafana Alloy container.
-    securityContext: {}
+    #
+    # Root is required to read the logs. On these nodes /var/log/pods is
+    # `drwxr-x--- root root` and each log file is `-rw------- root root`, so a
+    # non-root Alloy silently tails nothing and ships an empty stream.
+    # The /var/log mount is the only host access Alloy gets.
+    securityContext:
+      runAsUser: 0
+      runAsGroup: 0
 
     # -- Resource requests and limits to apply to the Grafana Alloy container.
-    resources: {}
+    # The nodes are arm64 boards, so cap the agent.
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
 
     # -- Set lifecycle hooks for the Grafana Alloy container.
     lifecycle: {}
@@ -198,7 +316,11 @@ alloy:
   controller:
     # -- Type of controller to use for deploying Grafana Alloy in the cluster.
     # Must be one of 'daemonset', 'deployment', or 'statefulset'.
-    type: 'deployment'
+    #
+    # DaemonSet, not Deployment. Each pod tails the log files on its own node,
+    # so one pod per node is required. A single Deployment replica would collect
+    # logs from one node and miss the other three.
+    type: 'daemonset'
 
     # -- Number of pods to deploy. Ignored when controller.type is 'daemonset'.
     replicas: 1
@@ -424,7 +546,10 @@ alloy:
       # cloud.google.com/load-balancer-type: Internal
 
   serviceMonitor:
-    enabled: false
+    # Alloy exports its own pipeline metrics, including how many log lines it
+    # sent and how many writes to Loki failed. Prometheus selects all
+    # ServiceMonitors, so this is enough to graph a silent shipper.
+    enabled: true
     # -- Additional labels for the service monitor.
     additionalLabels: {}
     # -- Scrape interval. If not set, the Prometheus default scrape interval is used.

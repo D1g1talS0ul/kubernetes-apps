@@ -92,8 +92,12 @@ alloy:
             target_label  = "container"
           }
 
+          // `role = "pod"` exposes the node as __meta_kubernetes_pod_node_name.
+          // __meta_kubernetes_node_name exists only for `role = "node"`, and a
+          // rule that reads a missing meta label resolves empty and drops the
+          // target label without any error. `alloy validate` does not catch it.
           rule {
-            source_labels = ["__meta_kubernetes_node_name"]
+            source_labels = ["__meta_kubernetes_pod_node_name"]
             target_label  = "node"
           }
 
@@ -358,7 +362,15 @@ alloy:
     nodeSelector: {}
 
     # -- Tolerations to apply to Grafana Alloy pods.
-    tolerations: []
+    #
+    # k8s-1 carries `node-role.kubernetes.io/control-plane:NoSchedule`. Without
+    # this toleration the DaemonSet runs on three nodes of four and drops every
+    # control-plane log: API server, etcd, scheduler, controller-manager and the
+    # Cilium agent on that node.
+    tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
 
     # -- Topology Spread Constraints to apply to Grafana Alloy pods.
     topologySpreadConstraints: []

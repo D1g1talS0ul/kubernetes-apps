@@ -13,6 +13,13 @@ pihole:
       lbipam.cilium.io/sharing-key: dns
     type: LoadBalancer
     mixedService: true
+    # The chart defaults this to "Local", which only serves the VIP from the
+    # node that runs the pod. The pod is unpinned and the Cilium L2 lease for
+    # 192.168.1.96 sits on a different node, so external DNS black-holes.
+    # "Cluster" lets any node forward to the pod, and matches every gateway
+    # service in this repo. Trade-off: SNAT hides the real client IP, so
+    # per-client Pi-hole stats and group filtering see the node IP instead.
+    externalTrafficPolicy: Cluster
 
   persistentVolumeClaim:
     enabled: true

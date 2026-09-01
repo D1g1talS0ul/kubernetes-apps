@@ -7,6 +7,7 @@ syncs every app in `apps/`.
 
 | Path | Purpose |
 | --- | --- |
+| `cilium-values.yaml` | Helm values for Cilium. Helm applies it, not Argo CD. |
 | `appproject.yaml` | The `platform` AppProject. Bootstrap applies it by hand. |
 | `applicationset.yaml` | The `appset` ApplicationSet. Bootstrap applies it by hand. |
 | `apps/<name>/` | One app. The directory name becomes the Application name and the namespace. |
@@ -144,17 +145,24 @@ and search for "Cilium supports Gateway API".
      -o jsonpath='{.metadata.annotations.gateway\.networking\.k8s\.io/bundle-version}'
    ```
 
-4. Save the current Helm values.
-
-   ```
-   helm get values cilium --namespace kube-system -o yaml > cilium-old-values.yaml
-   ```
-
-5. Upgrade Cilium.
+4. Upgrade Cilium with the values in this repo. Do not dump the values from the
+   release with `helm get values`. `cilium-values.yaml` is the source of truth.
+   Dumping from the release is how the configuration drifted out of Git.
 
    ```
    helm upgrade cilium cilium/cilium --version <VERSION> \
-     --namespace kube-system -f cilium-old-values.yaml
+     --namespace kube-system -f cilium-values.yaml
+   ```
+
+   To confirm the file still matches the cluster before you upgrade, read the
+   values back out of the release Secret.
+
+   ```
+   S=$(kubectl get secret -n kube-system -l owner=helm,name=cilium \
+     --sort-by=.metadata.creationTimestamp -o jsonpath='{.items[-1].metadata.name}')
+   kubectl get secret "$S" -n kube-system -o jsonpath='{.data.release}' \
+     | base64 -d | base64 -d | gunzip \
+     | python3 -c 'import json,sys; print(json.dumps(json.load(sys.stdin)["config"], indent=2))'
    ```
 
 6. Restart the operator. It checks the Gateway API CRDs only at startup, so it
@@ -196,6 +204,29 @@ Check these three things instead.
    ```
    kubectl get secrets -n cilium-secrets
    ```
+
+### Cilium dashboards in Grafana
+
+Cilium ships its own Grafana dashboards as ConfigMaps, and the Grafana sidecar
+imports them. `cilium-values.yaml` enables them.
+
+The `dashboards.namespace: grafana` setting is required, in both the top-level
+`dashboards` block and `operator.dashboards`. The default puts the ConfigMap in
+kube-system, and the Grafana sidecar sets no `searchNamespace`, so it watches only
+its own namespace. The ConfigMaps would exist and Grafana would never load them.
+
+Panels stay empty unless `prometheus.enabled` is true. Agent metrics are off by
+default, and the agent holds the useful series: datapath drops, endpoint and
+identity counts, BPF map pressure and API latency.
+
+Check that the metrics arrive, not just that the dashboard appears.
+
+```
+kubectl get servicemonitor -n kube-system | grep cilium
+kubectl get cm -n grafana -l grafana_dashboard
+```
+
+Hubble flow metrics stay off. See the comment in `cilium-values.yaml`.
 
 ### Test a Gateway from the command line
 

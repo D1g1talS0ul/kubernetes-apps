@@ -1,0 +1,95 @@
+# Helm values for Cilium in kube-system.
+#
+# Cilium is not an Argo CD app. Helm installs it, because the CNI must run before
+# Argo CD does. This file is the source of truth for the values. Before this file
+# existed they lived only inside the Helm release Secret
+# (sh.helm.release.v1.cilium.vN), so a lost release meant lost configuration.
+#
+# Apply with:
+#   helm upgrade --install cilium cilium/cilium --version 1.20.1 \
+#     --namespace kube-system -f cilium-values.yaml
+#
+# Read "Upgrade Cilium" in README.md first. The Gateway API CRD version in
+# apps/gateway-api/ must match the Cilium version, or every app goes offline.
+
+cluster:
+  name: kubernetes
+
+k8sServiceHost: 192.168.1.40
+k8sServicePort: 6443
+
+kubeProxyReplacement: true
+
+routingMode: tunnel
+tunnelProtocol: vxlan
+
+# Serves the Gateway API. apps/gateway-api/ owns the CRD version.
+gatewayAPI:
+  enabled: true
+  hostNetwork:
+    enabled: false
+
+# Announces the LoadBalancer IPs on the LAN by ARP.
+l2announcements:
+  enabled: true
+
+hubble:
+  relay:
+    enabled: true
+  ui:
+    enabled: true
+  tls:
+    auto:
+      method: helm
+
+  # Hubble flow metrics stay off. They add per-flow processing on four arm64
+  # boards, and `httpV2` is the most expensive because it parses L7 HTTP.
+  # The agent and operator metrics below are enough for the Cilium dashboards.
+  #
+  # To turn them on, uncomment this block, then add the Hubble dashboards the
+  # same way as the agent ones:
+  #
+  # metrics:
+  #   enabled:
+  #     - dns
+  #     - drop
+  #     - tcp
+  #     - flow
+  #     - icmp
+  #     - port-distribution
+  #   serviceMonitor:
+  #     enabled: true
+  #   dashboards:
+  #     enabled: true
+  #     namespace: grafana
+
+# Agent metrics on port 9962, plus the ServiceMonitor that scrapes them.
+# Without this the agent exposes no metrics at all, and a Cilium dashboard shows
+# empty panels. The agent is where the useful series live: datapath drops,
+# endpoint and identity counts, BPF map pressure and API latency.
+prometheus:
+  enabled: true
+  serviceMonitor:
+    enabled: true
+
+operator:
+  replicas: 1
+  # Operator metrics on port 9963.
+  prometheus:
+    enabled: true
+    serviceMonitor:
+      enabled: true
+  # Operator dashboard. Same namespace note as below.
+  dashboards:
+    enabled: true
+    namespace: grafana
+
+# Agent dashboard, shipped as a ConfigMap that the Grafana sidecar imports.
+#
+# `namespace: grafana` is required. The default puts the ConfigMap in
+# kube-system, and the Grafana sidecar sets no `searchNamespace`, so it watches
+# only its own namespace. The dashboards would exist and Grafana would never
+# load them.
+dashboards:
+  enabled: true
+  namespace: grafana

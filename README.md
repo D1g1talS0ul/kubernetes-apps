@@ -284,8 +284,11 @@ survive.
 
 ## Known gaps
 
-- `default/cilium-gw` (echo.cikli.com) still uses `letsencrypt-staging`. That
-  Gateway is not in this repo. Nothing here manages it.
+- external-dns runs with `--policy=upsert-only` and `--registry=noop`. It creates
+  and updates DNS records and never deletes one, and it keeps no ownership record.
+  After you remove an app or rename a host, delete the old record in Cloudflare by
+  hand. The `echo.cikli.com` record is orphaned this way, because the echo test
+  app was removed on 2026-09-01.
 - Cilium runs with CiliumEndpointSlice off, which is the default, so the
   `ciliumendpointslices.cilium.io` CRD does not exist. The operator logs
   "CiliumEndpointSlice CRD cannot be found, skipping garbage collection" at info

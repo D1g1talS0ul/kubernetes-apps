@@ -38,10 +38,11 @@ work cluster.
 Cilium, CoreDNS and cert-manager are not in this repo. Install them first. The
 `platform` AppProject denies writes to `kube-system` for this reason.
 
-1. Install Cilium with Helm. Enable the Gateway API.
+1. Install the Gateway API CRDs, then Cilium. See "Upgrade Cilium" below for the
+   version pair and the CRD commands. Install the CRDs first.
 
    ```
-   helm upgrade --install cilium cilium/cilium --version 1.18.0 \
+   helm upgrade --install cilium cilium/cilium --version <VERSION> \
      --namespace kube-system -f cilium-values.yaml
    ```
 
@@ -102,6 +103,108 @@ kubectl label namespace longhorn-system \
 
 Upgrade Longhorn one minor version at a time. Longhorn does not support version
 skips. See the three staged commits from the 1.9.1 to 1.12.1 upgrade.
+
+## Upgrade Cilium
+
+Read this section before you touch Cilium. On 2026-09-01 a Cilium bump took every
+app offline for nine hours, and the cause was this step being missing.
+
+Helm manages Cilium in `kube-system`. The Gateway API CRDs are also outside this
+repo. Their version is tied to the Cilium version, and nothing enforces the pair.
+
+| Cilium | Gateway API CRDs |
+| --- | --- |
+| 1.18.x | v1.2.0 |
+| 1.20.1 | v1.6.1 |
+
+To find the pair for any other release, read
+`https://docs.cilium.io/en/v<VERSION>/network/servicemesh/gateway-api/gateway-api/`
+and search for "Cilium supports Gateway API".
+
+### Procedure
+
+1. Look up the Gateway API version that the target Cilium release requires.
+2. Install those CRDs first. Cilium reads them at startup.
+
+   ```
+   for c in gatewayclasses gateways httproutes referencegrants grpcroutes \
+            backendtlspolicies tlsroutes; do
+     kubectl apply --server-side -f \
+       https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v<GWAPI>/config/crd/standard/gateway.networking.k8s.io_$c.yaml
+   done
+   ```
+
+   If a CRD reports a field-manager conflict, repeat it with `--force-conflicts`.
+
+3. Save the current Helm values.
+
+   ```
+   helm get values cilium --namespace kube-system -o yaml > cilium-old-values.yaml
+   ```
+
+4. Upgrade Cilium.
+
+   ```
+   helm upgrade cilium cilium/cilium --version <VERSION> \
+     --namespace kube-system -f cilium-old-values.yaml
+   ```
+
+5. Restart the operator. It checks the Gateway API CRDs only at startup, so it
+   never recovers on its own after a CRD change.
+
+   ```
+   kubectl rollout restart deploy/cilium-operator -n kube-system
+   ```
+
+6. Verify. See the next section.
+
+### Verify Gateway API after a Cilium change
+
+Do not trust `kubectl get gateways`. A Gateway reports `PROGRAMMED=True` from its
+last successful reconcile. If the controller is dead, that status is stale and
+every Gateway still looks healthy while no app serves traffic.
+
+Check these three things instead.
+
+1. Confirm the operator found the CRDs. Any output here is a failure.
+
+   ```
+   kubectl logs -n kube-system -l io.cilium/app=operator --tail=400 \
+     | grep "Required GatewayAPI resources are not found"
+   ```
+
+2. Confirm the Gateway API secret sync is registered. The line must name a
+   Gateway API type. If it lists only `CiliumNetworkPolicy` and
+   `CiliumClusterwideNetworkPolicy`, the Gateway API controller never started.
+
+   ```
+   kubectl logs -n kube-system -l io.cilium/app=operator --tail=400 \
+     | grep "Setting up Secret synchronization"
+   ```
+
+3. Confirm one synced TLS secret exists per Gateway. An empty namespace means
+   Envoy has no certificate and resets every TLS handshake.
+
+   ```
+   kubectl get secrets -n cilium-secrets
+   ```
+
+### Test a Gateway from the command line
+
+Use `--resolve`. A Gateway listener matches on SNI, and connecting to the IP with
+a `Host:` header sends no SNI, so the request fails even when the Gateway is
+healthy.
+
+```
+curl -sk -o /dev/null -w "%{http_code}\n" \
+  --resolve argocd.cikli.com:443:192.168.1.93 https://argocd.cikli.com
+```
+
+Wrong, and it always fails:
+
+```
+curl -k -H "Host: argocd.cikli.com" https://192.168.1.93
+```
 
 ## Upgrade Argo CD
 
@@ -173,8 +276,13 @@ survive.
 
 ## Known gaps
 
-- Alloy runs with the upstream default config. It discovers Kubernetes objects
-  and forwards nothing. No app ships logs to Loki.
+- `default/cilium-gw` (echo.cikli.com) still uses `letsencrypt-staging`. That
+  Gateway is not in this repo. Nothing here manages it.
+- Cilium runs with CiliumEndpointSlice off, which is the default, so the
+  `ciliumendpointslices.cilium.io` CRD does not exist. The operator logs
+  "CiliumEndpointSlice CRD cannot be found, skipping garbage collection" at info
+  level. That message is correct and needs no action. The feature only reduces
+  API server load on large clusters.
 - `apps/argocd/argocd-ssh-key-encrypted.json` is unused. The generator reads this
   repo over HTTPS. The file stays for the day the repo needs SSH again.
 - Chart dependencies are pinned by exact version, not by digest. No `Chart.lock`

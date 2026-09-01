@@ -3,7 +3,10 @@ kind: Gateway
 metadata:
   name: tls-gateway-grafana
   annotations:
-    cert-manager.io/cluster-issuer: letsencrypt-staging
+    # Production Let's Encrypt, so browsers trust the certificate. Staging certs
+    # are signed by an untrusted root and always warn. Both ClusterIssuers use
+    # the same Cloudflare DNS-01 solver for cikli.com, so this is a drop-in.
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   gatewayClassName: cilium
   listeners:

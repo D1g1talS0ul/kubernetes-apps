@@ -1,0 +1,44 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# Gateway API CRDs, standard channel.
+#
+# THE VERSION HERE IS TIED TO THE CILIUM VERSION. Cilium reads these CRDs at
+# operator startup and refuses to run its Gateway API controller if a required
+# kind or version is missing. When that happens, no TLS secret is synced to
+# `cilium-secrets`, Envoy serves no certificate, and every app becomes
+# unreachable while `kubectl get gateways` still reports PROGRAMMED=True.
+#
+# That is not hypothetical. It cost nine hours on 2026-09-01, when Cilium went
+# 1.18.0 -> 1.20.1 and these CRDs stayed at v1.2.0.
+#
+#   Cilium 1.18.x -> Gateway API v1.2.0
+#   Cilium 1.20.1 -> Gateway API v1.6.1
+#
+# Before you bump Cilium, read the matching doc page and search for
+# "Cilium supports Gateway API":
+#   https://docs.cilium.io/en/v<VERSION>/network/servicemesh/gateway-api/gateway-api/
+#
+# Bump the seven URLs below in the same commit as the Cilium upgrade, and
+# restart the operator afterwards. See "Upgrade Cilium" in the root README.
+#
+# BOOTSTRAP: Argo CD owns the version from here on, but it cannot own the first
+# install. On an empty cluster these CRDs must exist before Cilium starts, and
+# Argo CD is not running yet. Apply them by hand once, then Argo CD adopts them.
+resources:
+- https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_gatewayclasses.yaml
+- https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_gateways.yaml
+- https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_httproutes.yaml
+- https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_referencegrants.yaml
+- https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_grpcroutes.yaml
+- https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_backendtlspolicies.yaml
+- https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v1.6.1/config/crd/standard/gateway.networking.k8s.io_tlsroutes.yaml
+
+# The appset turns prune on for every app. Deleting a Gateway API CRD would make
+# the API server garbage-collect every Gateway and HTTPRoute in the cluster, so
+# a bad render must never be able to do it.
+patches:
+- target:
+    group: apiextensions.k8s.io
+    kind: CustomResourceDefinition
+  path: protect-crds.yaml

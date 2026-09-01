@@ -10,6 +10,7 @@ syncs every app in `apps/`.
 | `appproject.yaml` | The `platform` AppProject. Bootstrap applies it by hand. |
 | `applicationset.yaml` | The `appset` ApplicationSet. Bootstrap applies it by hand. |
 | `apps/<name>/` | One app. The directory name becomes the Application name and the namespace. |
+| `apps/gateway-api/` | Gateway API CRDs. The version must match the Cilium version. |
 | `apps/components/` | Shared kustomize components. The generator excludes this path. |
 
 Each app in `apps/` is either an umbrella Helm chart (`Chart.yaml` plus
@@ -35,37 +36,44 @@ work cluster.
 
 ## Bootstrap from zero
 
-Cilium, CoreDNS and cert-manager are not in this repo. Install them first. The
-`platform` AppProject denies writes to `kube-system` for this reason.
+Cilium, CoreDNS and cert-manager are not in this repo. Install them first. Helm
+and Ansible manage Cilium and CoreDNS by hand, and nothing here renders them.
 
-1. Install the Gateway API CRDs, then Cilium. See "Upgrade Cilium" below for the
-   version pair and the CRD commands. Install the CRDs first.
+1. Apply the Gateway API CRDs by hand. Argo CD owns their version in
+   `apps/gateway-api/`, but it is not running yet, and Cilium needs the CRDs at
+   startup. Argo CD adopts them later.
+
+   ```
+   kubectl apply --server-side -k apps/gateway-api
+   ```
+
+2. Install Cilium with Helm. See "Upgrade Cilium" below for the version pair.
 
    ```
    helm upgrade --install cilium cilium/cilium --version <VERSION> \
      --namespace kube-system -f cilium-values.yaml
    ```
 
-2. Apply the AppProject. The apps cannot sync before the project exists.
+3. Apply the AppProject. The apps cannot sync before the project exists.
 
    ```
    kubectl apply -f appproject.yaml
    ```
 
-3. Apply the ApplicationSet.
+4. Apply the ApplicationSet.
 
    ```
    kubectl apply -f applicationset.yaml
    ```
 
-4. Wait for `sealed-secrets` to report Healthy. Grafana needs the controller to
+5. Wait for `sealed-secrets` to report Healthy. Grafana needs the controller to
    unseal its admin password.
 
    ```
    kubectl get application sealed-secrets -n argocd -w
    ```
 
-5. Watch the other apps converge.
+6. Watch the other apps converge.
 
    ```
    kubectl get applications -n argocd
@@ -80,7 +88,7 @@ in `applicationset.yaml` clears these races within a few minutes.
 
 `CreateNamespace=true` makes a plain namespace with no labels. If the cluster
 enforces Pod Security Admission at `restricted`, Longhorn fails to start. Label
-the namespace before step 3.
+the namespace before step 4.
 
 ```
 kubectl create namespace longhorn-system
@@ -109,8 +117,9 @@ skips. See the three staged commits from the 1.9.1 to 1.12.1 upgrade.
 Read this section before you touch Cilium. On 2026-09-01 a Cilium bump took every
 app offline for nine hours, and the cause was this step being missing.
 
-Helm manages Cilium in `kube-system`. The Gateway API CRDs are also outside this
-repo. Their version is tied to the Cilium version, and nothing enforces the pair.
+Helm manages Cilium in `kube-system`. Cilium itself is not in this repo. The
+Gateway API CRDs are, in `apps/gateway-api/`, and their version is tied to the
+Cilium version.
 
 | Cilium | Gateway API CRDs |
 | --- | --- |
@@ -124,39 +133,38 @@ and search for "Cilium supports Gateway API".
 ### Procedure
 
 1. Look up the Gateway API version that the target Cilium release requires.
-2. Install those CRDs first. Cilium reads them at startup.
+2. Bump the seven URLs in `apps/gateway-api/kustomization.yaml` to that version.
+   Commit and push. Argo CD applies the CRDs. Do this before step 4, because
+   Cilium reads the CRDs at startup.
+3. Confirm Argo CD applied them.
 
    ```
-   for c in gatewayclasses gateways httproutes referencegrants grpcroutes \
-            backendtlspolicies tlsroutes; do
-     kubectl apply --server-side -f \
-       https://raw.githubusercontent.com/kubernetes-sigs/gateway-api/v<GWAPI>/config/crd/standard/gateway.networking.k8s.io_$c.yaml
-   done
+   kubectl get application gateway-api -n argocd
+   kubectl get crd gateways.gateway.networking.k8s.io \
+     -o jsonpath='{.metadata.annotations.gateway\.networking\.k8s\.io/bundle-version}'
    ```
 
-   If a CRD reports a field-manager conflict, repeat it with `--force-conflicts`.
-
-3. Save the current Helm values.
+4. Save the current Helm values.
 
    ```
    helm get values cilium --namespace kube-system -o yaml > cilium-old-values.yaml
    ```
 
-4. Upgrade Cilium.
+5. Upgrade Cilium.
 
    ```
    helm upgrade cilium cilium/cilium --version <VERSION> \
      --namespace kube-system -f cilium-old-values.yaml
    ```
 
-5. Restart the operator. It checks the Gateway API CRDs only at startup, so it
+6. Restart the operator. It checks the Gateway API CRDs only at startup, so it
    never recovers on its own after a CRD change.
 
    ```
    kubectl rollout restart deploy/cilium-operator -n kube-system
    ```
 
-6. Verify. See the next section.
+7. Verify. See the next section.
 
 ### Verify Gateway API after a Cilium change
 

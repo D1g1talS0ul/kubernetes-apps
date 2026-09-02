@@ -1,0 +1,32 @@
+{{- /*
+Load the Plex monitoring dashboards into Grafana through the sidecar.
+
+The Grafana sidecar (values.yaml: sidecar.dashboards.label = grafana_dashboard)
+imports any ConfigMap that carries that label. This template renders one
+ConfigMap per JSON file under dashboards/plex/, so each dashboard stays a
+separate, version-controlled file and no single ConfigMap nears the 1 MB limit
+(server.json alone is ~0.5 MB).
+
+Sources:
+  - Plex stack: github.com/timothystewart6/plex-monitoring-stack (grafana/)
+  - Intel GPU:  github.com/clambin/intel-gpu-exporter (extracted from the
+    GrafanaDashboard CR, since this repo uses the sidecar, not grafana-operator)
+
+The JSON datasource references are pinned to the cluster Prometheus uid "prom".
+.Files.Get injects the JSON as raw bytes, so Grafana legend tokens like
+{{`{{instance}}`}} pass through untouched.
+*/ -}}
+{{- range $path, $_ := .Files.Glob "dashboards/plex/*.json" }}
+{{- $file := base $path }}
+{{- $name := $file | trimSuffix ".json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: plex-dashboard-{{ $name }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ $file }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}

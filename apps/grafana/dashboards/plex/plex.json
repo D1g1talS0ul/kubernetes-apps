@@ -37,7 +37,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -79,7 +80,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "server_info{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}",
           "format": "time_series",
@@ -93,7 +95,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "description": "Only available on Plex servers with PlexPass",
       "fieldConfig": {
@@ -151,7 +154,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "host_cpu_util{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}",
           "format": "time_series",
@@ -165,7 +169,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -211,7 +216,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(library_duration_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}) by (library)",
           "format": "time_series",
@@ -225,7 +231,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -267,7 +274,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "server_info{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}",
           "format": "time_series",
@@ -281,7 +289,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "description": "Only available on Plex servers with PlexPass",
       "fieldConfig": {
@@ -339,7 +348,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "host_mem_util{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}",
           "format": "time_series",
@@ -353,7 +363,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -399,7 +410,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(library_storage_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}) by (library)",
           "format": "time_series",
@@ -413,7 +425,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -495,7 +508,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "rate(transmit_bytes_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__rate_interval])",
           "format": "time_series",
@@ -505,7 +519,8 @@
         },
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "rate(estimated_transmit_bytes_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__rate_interval])",
           "format": "time_series",
@@ -532,7 +547,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -614,7 +630,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(max_over_time(play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[24h])) by (library_type)",
           "format": "time_series",
@@ -629,7 +646,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -705,7 +723,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(increase(play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__interval])) by (media_type) * ignoring(day,dow) group_right\n\n label_replace(   \n label_replace(   \n label_replace(   \n label_replace(   \n label_replace(   \n label_replace(      \n label_replace(   \n count_values without() (\"day\", day_of_week(timestamp(\n      sum(increase(          \n         play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}          \n      [$__interval]))  by (media_type)\n    )\n  ))\n  ,\"dow\",\"Sunday\",\"day\",\"0\")\n  ,\"dow\",\"Monday\",\"day\",\"1\")\n  ,\"dow\",\"Tuesday\",\"day\",\"2\")\n  ,\"dow\",\"Wednesday\",\"day\",\"3\")\n  ,\"dow\",\"Thursday\",\"day\",\"4\")\n  ,\"dow\",\"Friday\",\"day\",\"5\")\n  ,\"dow\",\"Saturday\",\"day\",\"6\")\n",
           "format": "time_series",
@@ -739,7 +758,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -815,7 +835,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(increase(play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__interval])) by (media_type) * ignoring(hour) group_right\n    count_values without() (\"hour\", hour(timestamp(\n      sum(increase(play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__interval]))  by (media_type)\n    )\n  )\n)\n",
           "format": "time_series",
@@ -892,7 +913,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -968,7 +990,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(increase(play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__interval])) by (media_type, title)",
           "format": "time_series",
@@ -1018,7 +1041,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -1094,7 +1118,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(increase(play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__interval])) by (media_type, user)",
           "format": "time_series",
@@ -1144,7 +1169,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -1220,7 +1246,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(increase(play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\"}[$__interval])) by (media_type, device_type)",
           "format": "time_series",
@@ -1283,7 +1310,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -1358,7 +1386,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(increase(\n  label_replace(\n  label_replace(\n      play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\",stream_type!=\"\"}\n  , \"res\", \"$1\", \"stream_file_resolution\", \"(.*)\")\n  , \"res\", \"${1}p\", \"stream_file_resolution\", \"^([0-9]+)$\")\n  \n[$__interval:])) by (stream_type, res)\n",
           "format": "time_series",
@@ -1404,7 +1433,8 @@
     },
     {
       "datasource": {
-        "uid": "$datasource"
+        "type": "prometheus",
+        "uid": "prom"
       },
       "fieldConfig": {
         "defaults": {
@@ -1479,7 +1509,8 @@
       "targets": [
         {
           "datasource": {
-            "uid": "$datasource"
+            "type": "prometheus",
+            "uid": "prom"
           },
           "expr": "sum(increase(\n  label_replace(\n  label_replace(\n      play_seconds_total{job=~\"$job\", instance=~\"$instance\", server=~\"$server\",stream_type!=\"\"}\n  , \"res\", \"$1\", \"stream_resolution\", \"(.*)\")\n  , \"res\", \"${1}p\", \"stream_resolution\", \"^([0-9]+)$\")\n  \n[$__interval:])) by (stream_type, res)\n",
           "format": "time_series",
@@ -1531,20 +1562,6 @@
   "templating": {
     "list": [
       {
-        "current": {
-          "text": "default",
-          "value": "default"
-        },
-        "includeAll": false,
-        "label": "Data Source",
-        "name": "datasource",
-        "options": [],
-        "query": "prometheus",
-        "refresh": 1,
-        "regex": "",
-        "type": "datasource"
-      },
-      {
         "allValue": ".+",
         "current": {
           "text": [
@@ -1556,7 +1573,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$datasource"
+          "uid": "prom"
         },
         "definition": "",
         "includeAll": true,
@@ -1582,7 +1599,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$datasource"
+          "uid": "prom"
         },
         "definition": "",
         "includeAll": true,
@@ -1608,7 +1625,7 @@
         },
         "datasource": {
           "type": "prometheus",
-          "uid": "$datasource"
+          "uid": "prom"
         },
         "definition": "",
         "includeAll": true,

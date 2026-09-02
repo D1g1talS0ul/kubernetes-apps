@@ -1,0 +1,40 @@
+{{- /*
+Scrape the Plex host exporters that run under Docker on 192.168.1.14.
+These targets live outside the cluster, so there is no Service to attach a
+ServiceMonitor to. A ScrapeConfig with static targets is the operator-native
+way to pull them.
+
+The Prometheus CR selects ScrapeConfigs by the label `release: prometheus`
+across all namespaces, so each resource below carries that label. Each one
+sets a friendly `job` label with a relabeling, because the operator otherwise
+names the job `scrapeConfig/<namespace>/<name>`.
+
+Ports match the running containers on the host (verified reachable):
+  node 9100, intel-gpu 9111, smartctl 9633, cadvisor 8080, plex 9000.
+*/ -}}
+{{- $host := "192.168.1.14" -}}
+{{- $jobs := list
+  (dict "name" "plex-node"      "job" "node"      "port" "9100")
+  (dict "name" "plex-intel-gpu" "job" "intel-gpu" "port" "9111")
+  (dict "name" "plex-smartctl"  "job" "smartctl"  "port" "9633")
+  (dict "name" "plex-cadvisor"  "job" "cadvisor"  "port" "8080")
+  (dict "name" "plex-exporter"  "job" "plex"      "port" "9000")
+-}}
+{{- range $j := $jobs }}
+---
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: {{ $j.name }}
+  labels:
+    release: prometheus
+spec:
+  staticConfigs:
+    - targets:
+        - "{{ $host }}:{{ $j.port }}"
+  relabelings:
+    - targetLabel: job
+      replacement: {{ $j.job }}
+    - targetLabel: instance
+      replacement: plex-host
+{{- end }}

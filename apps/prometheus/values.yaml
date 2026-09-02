@@ -37,8 +37,11 @@ kube-prometheus-stack:
       podMonitorSelectorNilUsesHelmValues: false
       probeSelectorNilUsesHelmValues: false
       ruleSelectorNilUsesHelmValues: false
-      # Short retention to fit the homelab; grow storage/retention later.
-      retention: 7d
+      # 60-day history for Grafana trends. retentionSize caps the TSDB below
+      # the volume size so the disk cannot fill if the estimate is low; the
+      # first limit reached (time or size) trims the oldest blocks.
+      retention: 60d
+      retentionSize: 80GB
       resources:
         requests:
           cpu: 200m
@@ -53,7 +56,9 @@ kube-prometheus-stack:
             accessModes: ["ReadWriteOnce"]
             resources:
               requests:
-                storage: 15Gi
+                # ~54 GB of blocks at 60d + compaction headroom + growth room.
+                # Longhorn expands online; operator v0.93 patches the live PVC.
+                storage: 100Gi
 
   # Already running in ns `prometheus`; keep enabled (in-place, names unchanged).
   kubeStateMetrics:

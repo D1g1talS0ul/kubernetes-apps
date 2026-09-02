@@ -1,0 +1,27 @@
+{{- /*
+Load the UniFi (unpoller) InfluxDB dashboards into Grafana through the sidecar.
+
+Source: github.com/unpoller/dashboards (v2.0.0, the "- InfluxDB" JSON files).
+These dashboards use InfluxQL. The datasource reference token ${DS_UNIFI_POLLER}
+is pinned to the InfluxDB datasource uid "influxdb-unpoller" (see values.yaml).
+
+The Client DPI dashboard is not included. Its JSON is ~2 MB and a ConfigMap
+cannot exceed 1 MiB. Load it another way (gnetId at runtime) if you need it.
+
+.Files.Get injects the JSON as raw bytes, so Grafana legend tokens like
+{{`{{instance}}`}} pass through untouched.
+*/ -}}
+{{- range $path, $_ := .Files.Glob "dashboards/unifi/*.json" }}
+{{- $file := base $path }}
+{{- $name := $file | trimSuffix ".json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: unifi-dashboard-{{ $name }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ $file }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}

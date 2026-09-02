@@ -20,6 +20,26 @@ grafana:
         - name: Loki
           type: loki
           url: http://loki-gateway.loki.svc
+        # UniFi metrics from unpoller, stored in InfluxDB 3 on the Plex host.
+        # InfluxDB 3 answers InfluxQL on its v1 /query endpoint. The v1 API
+        # ignores the user and takes the database token as the password.
+        # The token comes from the sealed secret below via envFromSecret.
+        - name: InfluxDB-UniFi
+          uid: influxdb-unpoller
+          type: influxdb
+          access: proxy
+          editable: false
+          url: http://192.168.1.14:8181
+          user: unpoller
+          jsonData:
+            dbName: unpoller
+            httpMode: GET
+          secureJsonData:
+            password: $INFLUXDB_UNPOLLER_TOKEN
+  # Load the InfluxDB 3 token into the Grafana pod as an environment variable.
+  # The datasource above reads it as $INFLUXDB_UNPOLLER_TOKEN. The secret key
+  # must equal that name. See templates/sealed-secrets-influxdb-token.yaml.
+  envFromSecret: influxdb-unpoller-token
   admin:
     ## Name of the secret. Can be templated.
     existingSecret: "grafana-admin-secret"

@@ -33,8 +33,12 @@ spec:
     - targets:
         - "{{ $host }}:{{ $j.port }}"
   relabelings:
-    - targetLabel: job
+    # action: replace is the CRD default. Set it explicitly so the rendered
+    # manifest matches what the API stores, or Argo CD reports OutOfSync.
+    - action: replace
+      targetLabel: job
       replacement: {{ $j.job }}
-    - targetLabel: instance
+    - action: replace
+      targetLabel: instance
       replacement: plex-host
 {{- end }}

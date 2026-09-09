@@ -73,10 +73,10 @@ grafana:
         gnetId: 14981
         revision: 2
         datasource: Prometheus
-      longhorn:
-        gnetId: 22705
-        revision: 1
-        datasource: Prometheus
+      # Longhorn (gnetId 22705) is vendored instead — see
+      # templates/longhorn-dashboards.yaml + dashboards/longhorn/. The imported
+      # copy referenced its datasource by uid as "${DS_PROMETHEUS}", which the
+      # chart does not rewrite, so it showed "No data".
   dashboardProviders:
     dashboardproviders.yaml:
       apiVersion: 1

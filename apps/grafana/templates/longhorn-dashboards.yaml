@@ -1,0 +1,33 @@
+{{- /*
+Load the Longhorn dashboard into Grafana through the sidecar.
+
+Same mechanism as plex-dashboards.yaml: the Grafana sidecar
+(values.yaml: sidecar.dashboards.label = grafana_dashboard) imports any
+ConfigMap carrying that label. One ConfigMap per JSON file under
+dashboards/longhorn/.
+
+Source: Grafana.com dashboard 22705 (Longhorn Dashboard), revision 1.
+It was previously imported via `dashboards.default.longhorn.gnetId`, but that
+dashboard references its datasource by uid as "${DS_PROMETHEUS}", and the chart
+only rewrites the older string-form `"datasource": "${DS_PROMETHEUS}"` — leaving
+the uid placeholders unresolved, so every panel showed "No data". The vendored
+copy pins all datasource references to the cluster Prometheus uid "prom".
+
+Metrics flow via apps/longhorn-system/templates/servicemonitor.yaml.
+.Files.Get injects the JSON as raw bytes, so Grafana legend tokens like
+{{`{{instance}}`}} pass through untouched.
+*/ -}}
+{{- range $path, $_ := .Files.Glob "dashboards/longhorn/*.json" }}
+{{- $file := base $path }}
+{{- $name := $file | trimSuffix ".json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: longhorn-dashboard-{{ $name }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ $file }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}

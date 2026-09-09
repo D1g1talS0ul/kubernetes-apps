@@ -1,0 +1,33 @@
+{{- /*
+Load the Pi-hole dashboard into Grafana through the sidecar.
+
+Same mechanism as longhorn-dashboards.yaml: the Grafana sidecar
+(values.yaml: sidecar.dashboards.label = grafana_dashboard) imports any
+ConfigMap carrying that label. One ConfigMap per JSON file under
+dashboards/pihole/.
+
+Source: Grafana.com dashboard 10176 (Pi-hole Exporter). It referenced its
+datasource as the string placeholder "${DS_PROMETHEUS}"; the vendored copy
+pins every reference to the cluster Prometheus uid "prom" and drops __inputs.
+Its `node` template variable is label_values(pihole_ads_blocked_today, hostname),
+so it builds a dropdown of both Pi-holes (192.168.1.5 / 192.168.1.95).
+
+Metrics flow via apps/prometheus/templates/pihole-scrapeconfig.yaml, which
+scrapes the external eko/pihole-exporter at 192.168.1.14:9617 (job=pihole).
+.Files.Get injects the JSON as raw bytes, so any Grafana legend tokens pass
+through untouched.
+*/ -}}
+{{- range $path, $_ := .Files.Glob "dashboards/pihole/*.json" }}
+{{- $file := base $path }}
+{{- $name := $file | trimSuffix ".json" }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pihole-dashboard-{{ $name }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ $file }}: |-
+{{ $.Files.Get $path | indent 4 }}
+{{- end }}

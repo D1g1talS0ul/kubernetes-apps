@@ -1,0 +1,25 @@
+{{- /*
+Scrape the eko/pihole-exporter that runs under Docker on 192.168.1.14:9617.
+It polls both Pi-hole instances (192.168.1.5 and 192.168.1.95) and exposes
+their metrics under a `hostname` label, so a single static target covers both.
+
+Like the Plex host exporters this lives outside the cluster (no Service), so a
+ScrapeConfig with a static target is the operator-native way to pull it. The
+Prometheus CR selects ScrapeConfigs by the label `release: prometheus`.
+*/ -}}
+apiVersion: monitoring.coreos.com/v1alpha1
+kind: ScrapeConfig
+metadata:
+  name: pihole-exporter
+  labels:
+    release: prometheus
+spec:
+  staticConfigs:
+    - targets:
+        - "192.168.1.14:9617"
+  relabelings:
+    # action: replace is the CRD default. Set it explicitly so the rendered
+    # manifest matches what the API stores, or Argo CD reports OutOfSync.
+    - action: replace
+      targetLabel: job
+      replacement: pihole

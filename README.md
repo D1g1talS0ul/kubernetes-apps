@@ -126,6 +126,7 @@ Cilium version.
 | --- | --- |
 | 1.18.x | v1.2.0 |
 | 1.20.1 | v1.6.1 |
+| 1.20.2 | v1.6.1 |
 
 To find the pair for any other release, read
 `https://docs.cilium.io/en/v<VERSION>/network/servicemesh/gateway-api/gateway-api/`

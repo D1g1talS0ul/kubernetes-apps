@@ -1,0 +1,51 @@
+{{- /*
+TLS passthrough to Vault.
+
+The other apps terminate TLS at the Gateway. Vault must see the client's TLS
+certificate for its `cert` auth method, so this listener passes the stream
+through untouched and Vault terminates it with certificate.yaml.
+
+external-dns only watches HTTPRoutes (--source=gateway-httproute), so it does
+not publish this hostname. The address is pinned instead, and the DNS record
+vault.cikli.com -> 192.168.1.97 is added by hand in Pi-hole. See README.md.
+*/ -}}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: tls-gateway-vault
+spec:
+  gatewayClassName: cilium
+  addresses:
+  - type: IPAddress
+    value: 192.168.1.97
+  listeners:
+  - name: tls-vault
+    protocol: TLS
+    port: 443
+    hostname: "vault.cikli.com"
+    allowedRoutes:
+      namespaces:
+        from: Same
+      kinds:
+      - kind: TLSRoute
+    tls:
+      mode: Passthrough
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: TLSRoute
+metadata:
+  name: cilium-route-vault
+spec:
+  parentRefs:
+  - group: gateway.networking.k8s.io
+    kind: Gateway
+    name: tls-gateway-vault
+  hostnames:
+  - "vault.cikli.com"
+  rules:
+  - backendRefs:
+    - group: ""
+      kind: Service
+      name: vault
+      port: 8200
+      weight: 1

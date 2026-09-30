@@ -1,0 +1,113 @@
+vault:
+  global:
+    # Vault terminates TLS itself (see templates/network.yaml for why), so the
+    # chart must render https:// addresses and TLS-aware probes.
+    tlsDisable: false
+
+  # The CLI is the interface. Add these back if a workload ever needs secrets
+  # injected or the web UI.
+  injector:
+    enabled: false
+  ui:
+    enabled: false
+
+  server:
+    # The unsealer sidecar sends SIGHUP to the vault process when cert-manager
+    # renews the TLS cert. That needs a shared PID namespace.
+    shareProcessNamespace: true
+
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        memory: 256Mi
+
+    dataStorage:
+      enabled: true
+      size: 1Gi
+      storageClass: longhorn
+
+    volumes:
+      # Issued by templates/certificate.yaml. Not optional: the pod waits in
+      # ContainerCreating until cert-manager has written it.
+      - name: tls
+        secret:
+          secretName: vault-tls
+      # Created from templates/sealed-secret-unseal-key.yaml after
+      # `vault operator init`. Optional so the pod can start before init.
+      - name: unseal
+        secret:
+          secretName: vault-unseal-key
+          optional: true
+
+    volumeMounts:
+      - name: tls
+        mountPath: /vault/tls
+        readOnly: true
+
+    extraContainers:
+      # Vault OSS cannot read its own unseal key. This loop unseals it after
+      # every restart, and reloads the TLS cert when cert-manager renews it.
+      - name: unsealer
+        image: hashicorp/vault:2.0.4
+        command: ["/bin/sh", "-c"]
+        args:
+          - |
+            last=""
+            while true; do
+              if [ -f /vault/unseal/key ]; then
+                status=$(vault status 2>/dev/null)
+                if [ $? -eq 2 ] && echo "$status" | grep -q 'Initialized *true'; then
+                  vault write -format=json sys/unseal key=@/vault/unseal/key >/dev/null \
+                    && echo "$(date -Iseconds) unsealed"
+                fi
+              fi
+              sum=$(sha256sum /vault/tls/tls.crt | cut -d' ' -f1)
+              if [ -n "$last" ] && [ "$sum" != "$last" ]; then
+                pkill -HUP -x vault && echo "$(date -Iseconds) reloaded TLS cert"
+              fi
+              last=$sum
+              sleep 10
+            done
+        env:
+          - name: VAULT_ADDR
+            value: https://127.0.0.1:8200
+          # The cert is for vault.cikli.com, not 127.0.0.1.
+          - name: VAULT_TLS_SERVER_NAME
+            value: vault.cikli.com
+        resources:
+          requests:
+            cpu: 5m
+            memory: 16Mi
+          limits:
+            memory: 64Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+          - name: tls
+            mountPath: /vault/tls
+            readOnly: true
+          - name: unseal
+            mountPath: /vault/unseal
+            readOnly: true
+
+    standalone:
+      enabled: true
+      # One pod on integrated Raft storage. Longhorn already replicates the
+      # volume across nodes, so a 3-pod Raft cluster buys little here.
+      config: |-
+        disable_mlock = true
+
+        listener "tcp" {
+          address         = "[::]:8200"
+          cluster_address = "[::]:8201"
+          tls_cert_file   = "/vault/tls/tls.crt"
+          tls_key_file    = "/vault/tls/tls.key"
+        }
+
+        storage "raft" {
+          path = "/vault/data"
+        }

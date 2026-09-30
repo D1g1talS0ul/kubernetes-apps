@@ -1,0 +1,20 @@
+{{- /*
+Vault's own TLS certificate.
+
+The other apps get theirs from the cert-manager annotation on their Gateway,
+but that shim only works for Terminate listeners. This Gateway passes TLS
+through (see network.yaml), so the Certificate is explicit and Vault mounts
+the Secret directly. The unsealer sidecar SIGHUPs Vault when it renews.
+*/ -}}
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: vault-tls
+spec:
+  secretName: vault-tls
+  dnsNames:
+  - vault.cikli.com
+  issuerRef:
+    group: cert-manager.io
+    kind: ClusterIssuer
+    name: letsencrypt-prod

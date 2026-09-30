@@ -1,0 +1,95 @@
+{{- /*
+Configures the SSH CA in Vault after every Argo CD sync. The work is done by
+files/configure.sh, and README.md covers the one-time setup it depends on.
+
+PostSync runs only after every resource is Healthy, so Vault is already
+unsealed by then. The Job authenticates with a projected ServiceAccount token
+for audience "vault", so no Vault token is stored in the cluster.
+*/ -}}
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: vault-config
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: vault-configure
+data:
+  configure.sh: |-
+{{ .Files.Get "files/configure.sh" | indent 4 }}
+  vault-config.hcl: |-
+{{ .Files.Get "files/vault-config.hcl" | indent 4 }}
+  ssh-operator.hcl: |-
+{{ .Files.Get "files/ssh-operator.hcl" | indent 4 }}
+  client-ca.crt: |-
+{{ .Files.Get "files/client-ca.crt" | indent 4 }}
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-config
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+    # Keep the last run for its logs. Argo CD deletes it before the next one.
+    argocd.argoproj.io/hook-delete-policy: BeforeHookCreation
+spec:
+  backoffLimit: 2
+  template:
+    spec:
+      serviceAccountName: vault-config
+      automountServiceAccountToken: false
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 100
+        runAsGroup: 1000
+      containers:
+      - name: configure
+        image: hashicorp/vault:2.0.4
+        command: ["/bin/sh", "/config/configure.sh"]
+        env:
+        - name: VAULT_ADDR
+          value: https://vault.vault.svc:8200
+        # The cert is for vault.cikli.com, not the Service name.
+        - name: VAULT_TLS_SERVER_NAME
+          value: vault.cikli.com
+        - name: HOME
+          value: /tmp
+        resources:
+          requests:
+            cpu: 10m
+            memory: 32Mi
+          limits:
+            memory: 128Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop: ["ALL"]
+        volumeMounts:
+        - name: config
+          mountPath: /config
+          readOnly: true
+        - name: userpass
+          mountPath: /userpass
+          readOnly: true
+        - name: token
+          mountPath: /var/run/secrets/vault
+          readOnly: true
+      volumes:
+      - name: config
+        configMap:
+          name: vault-configure
+      # Created from templates/sealed-secret-userpass.yaml. Optional so the Job
+      # still runs before that is committed. configure.sh skips userpass then.
+      - name: userpass
+        secret:
+          secretName: vault-userpass
+          optional: true
+      - name: token
+        projected:
+          sources:
+          - serviceAccountToken:
+              audience: vault
+              expirationSeconds: 600
+              path: token

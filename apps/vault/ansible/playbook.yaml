@@ -1,0 +1,112 @@
+---
+# Makes the k8s nodes trust the Vault SSH CA, and gives each one a signed host
+# certificate. Run it from the repo root after `vault login`:
+#
+#   ansible-playbook -i apps/vault/ansible/inventory.yaml apps/vault/ansible/playbook.yaml
+#
+# Re-run it before the host certs expire. They are valid for one year.
+#
+# authorized_keys is left alone on purpose. It is the way in if Vault or the
+# cluster is down.
+- hosts: k8s
+  become: true
+  vars:
+    vault_addr: "{{ lookup('env', 'VAULT_ADDR') or 'https://vault.cikli.com' }}"
+    vault_token: "{{ lookup('env', 'VAULT_TOKEN') or lookup('file', lookup('env', 'HOME') + '/.vault-token') }}"
+
+  tasks:
+    # The public_key endpoints need no token.
+    - name: Fetch the user CA public key
+      ansible.builtin.uri:
+        url: "{{ vault_addr }}/v1/ssh-client-signer/public_key"
+        return_content: true
+      register: user_ca
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+    - name: Fetch the host CA public key
+      ansible.builtin.uri:
+        url: "{{ vault_addr }}/v1/ssh-host-signer/public_key"
+        return_content: true
+      register: host_ca
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+    - name: Trust the user CA
+      ansible.builtin.copy:
+        dest: /etc/ssh/trusted-user-ca-keys.pem
+        content: "{{ user_ca.content | trim }}\n"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload ssh
+
+    - name: Read the host public key
+      ansible.builtin.slurp:
+        src: /etc/ssh/ssh_host_ed25519_key.pub
+      register: host_pub
+
+    - name: Sign the host key
+      ansible.builtin.uri:
+        url: "{{ vault_addr }}/v1/ssh-host-signer/sign/host"
+        method: POST
+        headers:
+          X-Vault-Token: "{{ vault_token }}"
+        body_format: json
+        body:
+          public_key: "{{ host_pub.content | b64decode | trim }}"
+          cert_type: host
+          valid_principals: "{{ inventory_hostname }},{{ ansible_host }}"
+      register: host_cert
+      delegate_to: localhost
+      become: false
+      no_log: true
+
+    - name: Install the host certificate
+      ansible.builtin.copy:
+        dest: /etc/ssh/ssh_host_ed25519_key-cert.pub
+        content: "{{ host_cert.json.data.signed_key | trim }}\n"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload ssh
+
+    - name: Configure sshd for the CA
+      ansible.builtin.copy:
+        dest: /etc/ssh/sshd_config.d/60-vault-ca.conf
+        content: |
+          # Managed by apps/vault/ansible/playbook.yaml.
+          TrustedUserCAKeys /etc/ssh/trusted-user-ca-keys.pem
+          HostCertificate /etc/ssh/ssh_host_ed25519_key-cert.pub
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Reload ssh
+
+    # Check before the handler reloads, so a bad config never goes live.
+    - name: Validate the sshd config
+      ansible.builtin.command: sshd -t
+      changed_when: false
+
+    - name: Trust the host CA in your known_hosts
+      ansible.builtin.lineinfile:
+        path: "{{ lookup('env', 'HOME') }}/.ssh/known_hosts"
+        regexp: " vault-host-ca$"
+        # Every node name and IP, then the CA key, tagged so reruns replace it.
+        line: >-
+          @cert-authority
+          {{ (groups['k8s'] + groups['k8s'] | map('extract', hostvars, 'ansible_host') | list) | join(',') }}
+          {{ host_ca.content | trim }} vault-host-ca
+        create: true
+        mode: "0600"
+      delegate_to: localhost
+      become: false
+      run_once: true
+
+  handlers:
+    - name: Reload ssh
+      ansible.builtin.systemd:
+        name: ssh
+        state: reloaded

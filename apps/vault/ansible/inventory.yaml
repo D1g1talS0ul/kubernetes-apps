@@ -1,0 +1,12 @@
+k8s:
+  hosts:
+    k8s-1:
+      ansible_host: 192.168.1.40
+    k8s-2:
+      ansible_host: 192.168.1.41
+    k8s-3:
+      ansible_host: 192.168.1.42
+    k8s-4:
+      ansible_host: 192.168.1.43
+  vars:
+    ansible_user: me

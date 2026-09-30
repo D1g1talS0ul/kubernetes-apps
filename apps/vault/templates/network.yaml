@@ -26,8 +26,11 @@ spec:
     allowedRoutes:
       namespaces:
         from: Same
+      # `group` is the API default. Spell it out, or Argo CD diffs against the
+      # defaulted live object and the app never reports Synced.
       kinds:
-      - kind: TLSRoute
+      - group: gateway.networking.k8s.io
+        kind: TLSRoute
     tls:
       mode: Passthrough
 ---
